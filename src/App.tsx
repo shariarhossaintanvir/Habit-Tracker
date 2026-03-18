@@ -18,6 +18,7 @@ import {
   TrendingUp,
   Award,
   Activity,
+  BarChart3,
   Filter,
   Target,
   Trophy,
@@ -36,7 +37,9 @@ import {
   ResponsiveContainer,
   Cell,
   PieChart,
-  Pie
+  Pie,
+  AreaChart,
+  Area
 } from 'recharts';
 import { Habit, HABIT_COLORS, HABIT_ICONS, SortOption, HabitGoal, BADGES, Badge } from './types';
 
@@ -1283,7 +1286,7 @@ const ProfileView = React.memo(({ habits, userName, habitGoal, onViewChange, onD
   earnedBadges: Badge[],
   key?: string
 }) => {
-  const [activeTab, setActiveTab] = useState<'weekly' | 'distribution' | 'calendar' | 'badges'>('weekly');
+  const [activeTab, setActiveTab] = useState<'weekly' | 'distribution' | 'calendar' | 'badges' | 'trends'>('weekly');
   const [habitToDelete, setHabitToDelete] = useState<Habit | null>(null);
   
   const points = useMemo(() => {
@@ -1307,9 +1310,39 @@ const ProfileView = React.memo(({ habits, userName, habitGoal, onViewChange, onD
     const count = habits.reduce((acc, h) => acc + (h.completedDates.includes(date) ? 1 : 0), 0);
     return {
       name: new Date(date).toLocaleDateString('en-US', { weekday: 'short' }),
-      count
+      count,
+      date
     };
   }), [habits, last7Days]);
+
+  const weeklyStats = useMemo(() => {
+    const totalPossible = habits.length * 7;
+    const totalCompleted = chartData.reduce((acc, d) => acc + d.count, 0);
+    const completionRate = totalPossible > 0 ? (totalCompleted / totalPossible) * 100 : 0;
+    const bestDay = [...chartData].sort((a, b) => b.count - a.count)[0];
+    
+    return {
+      completionRate: Math.round(completionRate),
+      bestDay: bestDay?.name || 'N/A',
+      totalCompleted
+    };
+  }, [chartData, habits.length]);
+
+  const monthlyTrendData = useMemo(() => {
+    const last30Days = Array.from({ length: 30 }, (_, i) => {
+      const d = new Date();
+      d.setDate(d.getDate() - 29 + i);
+      return d.toISOString().split('T')[0];
+    });
+
+    return last30Days.map(date => {
+      const count = habits.reduce((acc, h) => acc + (h.completedDates.includes(date) ? 1 : 0), 0);
+      return {
+        date: new Date(date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+        count
+      };
+    });
+  }, [habits]);
 
   const distributionData = useMemo(() => habits.map(h => ({
     name: h.name,
@@ -1426,7 +1459,7 @@ const ProfileView = React.memo(({ habits, userName, habitGoal, onViewChange, onD
       </div>
 
       {/* Stats Overview */}
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-12">
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-7 gap-4 mb-12">
         <div 
           onClick={() => setActiveTab('distribution')}
           className={`p-6 rounded-[32px] shadow-sm border transition-all cursor-pointer ${activeTab === 'distribution' ? 'bg-brand-blue text-white border-brand-blue' : 'bg-white dark:bg-zinc-900 border-slate-100 dark:border-white/5'}`}
@@ -1456,6 +1489,16 @@ const ProfileView = React.memo(({ habits, userName, habitGoal, onViewChange, onD
           </div>
           <p className="text-2xl font-black dark:text-white">{mostConsistentHabit?.completedDates.length || 0}</p>
           <p className={`text-xs font-bold uppercase ${activeTab === 'weekly' ? 'text-white/60' : 'text-slate-400 dark:text-zinc-500'}`}>Best Habit</p>
+        </div>
+        <div 
+          onClick={() => setActiveTab('trends')}
+          className={`p-6 rounded-[32px] shadow-sm border transition-all cursor-pointer ${activeTab === 'trends' ? 'bg-indigo-500 text-white border-indigo-500' : 'bg-white dark:bg-zinc-900 border-slate-100 dark:border-white/5'}`}
+        >
+          <div className={`w-10 h-10 rounded-xl flex items-center justify-center mb-4 ${activeTab === 'trends' ? 'bg-white/20 text-white' : 'bg-indigo-100 text-indigo-500'}`}>
+            <BarChart3 size={20} />
+          </div>
+          <p className="text-2xl font-black dark:text-white">{weeklyStats.completionRate}%</p>
+          <p className={`text-xs font-bold uppercase ${activeTab === 'trends' ? 'text-white/60' : 'text-slate-400 dark:text-zinc-500'}`}>Weekly Rate</p>
         </div>
         <div className="bg-white dark:bg-zinc-900 p-6 rounded-[32px] shadow-sm border border-slate-100 dark:border-white/5">
           <div className="w-10 h-10 bg-yellow-100 dark:bg-yellow-500/10 text-yellow-500 rounded-xl flex items-center justify-center mb-4">
@@ -1502,7 +1545,19 @@ const ProfileView = React.memo(({ habits, userName, habitGoal, onViewChange, onD
             exit={{ opacity: 0, y: -20 }}
             className="bg-white dark:bg-zinc-900 p-8 rounded-[40px] shadow-sm border border-slate-100 dark:border-white/5 mb-8"
           >
-            <h3 className="text-xl font-black mb-8 dark:text-white">Weekly Activity</h3>
+            <div className="flex items-center justify-between mb-8">
+              <h3 className="text-xl font-black dark:text-white">Weekly Activity</h3>
+              <div className="flex gap-4">
+                <div className="text-right">
+                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Avg Rate</p>
+                  <p className="text-lg font-black text-brand-blue">{weeklyStats.completionRate}%</p>
+                </div>
+                <div className="text-right">
+                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Best Day</p>
+                  <p className="text-lg font-black text-brand-green">{weeklyStats.bestDay}</p>
+                </div>
+              </div>
+            </div>
             <div className="h-[300px] w-full">
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={chartData}>
@@ -1526,6 +1581,69 @@ const ProfileView = React.memo(({ habits, userName, habitGoal, onViewChange, onD
                   </Bar>
                 </BarChart>
               </ResponsiveContainer>
+            </div>
+          </motion.div>
+        )}
+
+        {activeTab === 'trends' && (
+          <motion.div 
+            key="trends"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            className="bg-white dark:bg-zinc-900 p-8 rounded-[40px] shadow-sm border border-slate-100 dark:border-white/5 mb-8"
+          >
+            <h3 className="text-xl font-black mb-8 dark:text-white">30-Day Completion Trend</h3>
+            <div className="h-[300px] w-full">
+              <ResponsiveContainer width="100%" height="100%">
+                <AreaChart data={monthlyTrendData}>
+                  <defs>
+                    <linearGradient id="colorCount" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#6366f1" stopOpacity={0.3}/>
+                      <stop offset="95%" stopColor="#6366f1" stopOpacity={0}/>
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" opacity={0.1} />
+                  <XAxis 
+                    dataKey="date" 
+                    axisLine={false} 
+                    tickLine={false} 
+                    tick={{ fill: '#94a3b8', fontSize: 10, fontWeight: 600 }}
+                    interval={6}
+                    dy={10}
+                  />
+                  <YAxis hide />
+                  <Tooltip 
+                    contentStyle={{ borderRadius: '16px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)', backgroundColor: '#18181b', color: '#fff' }}
+                  />
+                  <Area 
+                    type="monotone" 
+                    dataKey="count" 
+                    stroke="#6366f1" 
+                    strokeWidth={3}
+                    fillOpacity={1} 
+                    fill="url(#colorCount)" 
+                    animationDuration={2000}
+                  />
+                </AreaChart>
+              </ResponsiveContainer>
+            </div>
+            <div className="mt-8 grid grid-cols-1 sm:grid-cols-3 gap-6">
+              <div className="bg-slate-50 dark:bg-zinc-950/50 p-6 rounded-3xl border border-slate-100 dark:border-white/5">
+                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Total Monthly</p>
+                <p className="text-2xl font-black dark:text-white">{monthlyTrendData.reduce((acc, d) => acc + d.count, 0)}</p>
+                <p className="text-xs text-slate-500 mt-1">Completions in 30 days</p>
+              </div>
+              <div className="bg-slate-50 dark:bg-zinc-950/50 p-6 rounded-3xl border border-slate-100 dark:border-white/5">
+                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Daily Average</p>
+                <p className="text-2xl font-black dark:text-white">{(monthlyTrendData.reduce((acc, d) => acc + d.count, 0) / 30).toFixed(1)}</p>
+                <p className="text-xs text-slate-500 mt-1">Habits per day</p>
+              </div>
+              <div className="bg-slate-50 dark:bg-zinc-950/50 p-6 rounded-3xl border border-slate-100 dark:border-white/5">
+                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Consistency</p>
+                <p className="text-2xl font-black dark:text-white">{Math.round((monthlyTrendData.filter(d => d.count > 0).length / 30) * 100)}%</p>
+                <p className="text-xs text-slate-500 mt-1">Active days this month</p>
+              </div>
             </div>
           </motion.div>
         )}
