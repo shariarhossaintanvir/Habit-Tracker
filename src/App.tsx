@@ -5,6 +5,7 @@ import {
   Calendar as CalendarIcon, 
   Settings, 
   ChevronLeft, 
+  ChevronRight,
   X, 
   Check, 
   Play,
@@ -12,6 +13,7 @@ import {
   User,
   Home,
   Zap,
+  Flame,
   Music,
   TrendingUp,
   Award,
@@ -21,7 +23,8 @@ import {
   Trophy,
   Timer,
   Trash2,
-  History
+  History,
+  Edit
 } from 'lucide-react';
 import { 
   BarChart, 
@@ -188,7 +191,58 @@ const Onboarding = React.memo(({ onFinish }: { onFinish: (name: string) => void,
   );
 });
 
-const Dashboard = React.memo(({ habits, userName, selectedDate, onDateSelect, onAdd, onToggle, onDelete, onSelect, onOpenCalendar, onOpenSettings, onViewChange, sortOption, onSortChange }: { 
+const BadgeUnlockModal = React.memo(({ badge, onClose }: { badge: Badge, onClose: () => void }) => {
+  return (
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-6">
+      <motion.div 
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        onClick={onClose}
+        className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+      />
+      <motion.div 
+        initial={{ scale: 0.8, opacity: 0, y: 20 }}
+        animate={{ scale: 1, opacity: 1, y: 0 }}
+        exit={{ scale: 0.8, opacity: 0, y: 20 }}
+        className="relative bg-white dark:bg-zinc-900 w-full max-w-sm rounded-[40px] p-8 text-center shadow-2xl border border-slate-100 dark:border-white/5"
+      >
+        <div className="absolute top-4 right-4">
+          <button onClick={onClose} className="p-2 text-slate-400 hover:text-slate-600 dark:hover:text-white transition-colors">
+            <X size={24} />
+          </button>
+        </div>
+
+        <motion.div 
+          animate={{ 
+            rotate: [0, -10, 10, -10, 10, 0],
+            scale: [1, 1.1, 1]
+          }}
+          transition={{ duration: 0.5, delay: 0.2 }}
+          className="w-32 h-32 mx-auto rounded-3xl flex items-center justify-center mb-6 shadow-2xl"
+          style={{ backgroundColor: badge.color }}
+        >
+          {React.createElement(badge.icon, { size: 64, color: 'white' })}
+        </motion.div>
+
+        <h2 className="text-3xl font-black mb-2 dark:text-white">Badge Unlocked!</h2>
+        <h3 className="text-xl font-bold text-slate-800 dark:text-zinc-200 mb-4">{badge.name}</h3>
+        <p className="text-slate-500 dark:text-zinc-400 mb-8 leading-relaxed">
+          {badge.description}
+        </p>
+
+        <button 
+          onClick={onClose}
+          className="w-full bg-black dark:bg-white text-white dark:text-black font-black py-4 rounded-2xl hover:scale-[1.02] active:scale-[0.98] transition-all shadow-lg"
+        >
+          Awesome!
+        </button>
+      </motion.div>
+    </div>
+  );
+});
+
+const Dashboard = React.memo(({ habits, userName, selectedDate, onDateSelect, onAdd, onToggle, onDelete, onSelect, onOpenCalendar, onOpenSettings, onViewChange, sortOption, onSortChange, stats, earnedBadges }: { 
   habits: Habit[], 
   userName: string,
   selectedDate: string,
@@ -202,6 +256,8 @@ const Dashboard = React.memo(({ habits, userName, selectedDate, onDateSelect, on
   onViewChange: (view: 'dashboard' | 'profile') => void,
   sortOption: SortOption,
   onSortChange: (sort: SortOption) => void,
+  stats: { totalCompletions: number, maxStreak: number, currentStreak: number },
+  earnedBadges: Badge[],
   key?: string
 }) => {
   const today = useMemo(() => new Date(), []);
@@ -244,6 +300,16 @@ const Dashboard = React.memo(({ habits, userName, selectedDate, onDateSelect, on
           <h2 className="text-3xl font-black dark:text-white">{displayTitle}</h2>
         </div>
         <div className="flex gap-3">
+          {stats.currentStreak > 0 && (
+            <motion.div 
+              initial={{ scale: 0.8, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              className="flex items-center gap-2 bg-orange-100 dark:bg-orange-500/10 text-orange-600 dark:text-orange-400 px-4 py-2 rounded-2xl border border-orange-200 dark:border-orange-500/20"
+            >
+              <Flame size={18} className="fill-current" />
+              <span className="font-black text-lg">{stats.currentStreak}</span>
+            </motion.div>
+          )}
           <button 
             onClick={onOpenCalendar}
             className="p-3 bg-white dark:bg-zinc-900 rounded-2xl shadow-sm border border-slate-100 dark:border-white/5 hover:bg-slate-50 dark:hover:bg-zinc-800 transition-colors dark:text-white"
@@ -259,6 +325,33 @@ const Dashboard = React.memo(({ habits, userName, selectedDate, onDateSelect, on
           </button>
         </div>
       </header>
+      
+      {/* Badge Progress */}
+      <div className="px-6 mb-8">
+        <motion.div 
+          onClick={() => onViewChange('profile')}
+          className="bg-white dark:bg-zinc-900 p-6 rounded-[32px] shadow-sm border border-slate-100 dark:border-white/5 flex items-center justify-between cursor-pointer hover:bg-slate-50 dark:hover:bg-zinc-800 transition-all"
+        >
+          <div className="flex items-center gap-4">
+            <div className="w-12 h-12 bg-purple-100 dark:bg-purple-500/10 text-purple-500 rounded-2xl flex items-center justify-center">
+              <Award size={24} />
+            </div>
+            <div>
+              <h4 className="font-black dark:text-white">Achievements</h4>
+              <p className="text-xs font-bold text-slate-400 dark:text-zinc-500 uppercase">{stats.totalCompletions} Total Completions</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-3">
+            <div className="text-right">
+              <p className="text-lg font-black dark:text-white">{earnedBadges.length} / {BADGES.length}</p>
+              <p className="text-[10px] font-bold text-slate-400 dark:text-zinc-500 uppercase">Badges</p>
+            </div>
+            <div className="w-10 h-10 rounded-full border-2 border-slate-100 dark:border-white/5 flex items-center justify-center text-slate-300">
+              <ChevronRight size={20} />
+            </div>
+          </div>
+        </motion.div>
+      </div>
 
       {/* Calendar Strip */}
       <div className="px-6 mb-8 flex justify-start overflow-x-auto no-scrollbar gap-2 scroll-smooth">
@@ -336,6 +429,31 @@ const Dashboard = React.memo(({ habits, userName, selectedDate, onDateSelect, on
                 </button>
               </div>
               <h3 className="font-bold text-lg leading-tight mb-1">{habit.name}</h3>
+              <div className="flex items-center gap-2 mb-4">
+                <div className="flex items-center gap-1 bg-black/10 px-2 py-0.5 rounded-full text-[10px] font-black uppercase">
+                  <Flame size={10} className="fill-current" />
+                  <span>{(() => {
+                    const sortedDates = [...habit.completedDates].sort().reverse();
+                    if (sortedDates.length === 0) return 0;
+                    const today = new Date();
+                    today.setHours(0, 0, 0, 0);
+                    const yesterday = new Date(today);
+                    yesterday.setDate(yesterday.getDate() - 1);
+                    const todayStr = today.toISOString().split('T')[0];
+                    const yesterdayStr = yesterday.toISOString().split('T')[0];
+                    const lastDateStr = sortedDates[0].split('T')[0];
+                    if (lastDateStr !== todayStr && lastDateStr !== yesterdayStr) return 0;
+                    let streak = 1;
+                    for (let i = 0; i < sortedDates.length - 1; i++) {
+                      const curr = new Date(sortedDates[i]);
+                      const next = new Date(sortedDates[i+1]);
+                      const diffDays = Math.ceil(Math.abs(curr.getTime() - next.getTime()) / (1000 * 60 * 60 * 24));
+                      if (diffDays === 1) streak++; else break;
+                    }
+                    return streak;
+                  })()} day streak</span>
+                </div>
+              </div>
               <div className="flex items-center gap-2 mb-2">
                 <span className="text-[10px] font-bold uppercase tracking-wider bg-black/10 px-2 py-0.5 rounded-full">
                   {habit.duration} min
@@ -403,14 +521,18 @@ const Dashboard = React.memo(({ habits, userName, selectedDate, onDateSelect, on
   );
 });
 
-const AddHabitModal = React.memo(({ onClose, onSave }: { onClose: () => void, onSave: (habit: Omit<Habit, 'id' | 'completedDates' | 'createdAt'>) => void }) => {
-  const [name, setName] = useState('');
-  const [description, setDescription] = useState('');
-  const [interval, setInterval] = useState<Habit['interval']>('Every day');
-  const [duration, setDuration] = useState(25);
-  const [reminderTime, setReminderTime] = useState('');
-  const [selectedColor, setSelectedColor] = useState(HABIT_COLORS[0]);
-  const [selectedIcon, setSelectedIcon] = useState(HABIT_ICONS[0].name);
+const AddHabitModal = React.memo(({ onClose, onSave, habitToEdit }: { 
+  onClose: () => void, 
+  onSave: (habit: Omit<Habit, 'id' | 'completedDates' | 'createdAt'>) => void,
+  habitToEdit?: Habit 
+}) => {
+  const [name, setName] = useState(habitToEdit?.name || '');
+  const [description, setDescription] = useState(habitToEdit?.description || '');
+  const [interval, setInterval] = useState<Habit['interval']>(habitToEdit?.interval || 'Every day');
+  const [duration, setDuration] = useState(habitToEdit?.duration || 25);
+  const [reminderTime, setReminderTime] = useState(habitToEdit?.reminderTime || '');
+  const [selectedColor, setSelectedColor] = useState(habitToEdit?.color || HABIT_COLORS[0]);
+  const [selectedIcon, setSelectedIcon] = useState(habitToEdit?.icon || HABIT_ICONS[0].name);
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6">
@@ -527,7 +649,7 @@ const AddHabitModal = React.memo(({ onClose, onSave }: { onClose: () => void, on
             }}
             className="w-full bg-brand-blue text-white font-bold py-5 rounded-3xl text-xl mt-8 hover:bg-brand-blue/90 active:scale-95 transition-all"
           >
-            Create Habit
+            {habitToEdit ? 'Update Habit' : 'Create Habit'}
           </button>
         </div>
       </motion.div>
@@ -605,12 +727,40 @@ const HabitHistory = React.memo(({ habit }: { habit: Habit }) => {
   );
 });
 
-const FocusMode = React.memo(({ habit, onClose, onComplete, onDelete }: { habit: Habit, onClose: () => void, onComplete: () => void, onDelete: (id: string) => void }) => {
-  const [mode, setMode] = useState<'focus' | 'history'>('focus');
+const BreatheText = () => {
+  const [text, setText] = useState('Inhale');
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setText(prev => prev === 'Inhale' ? 'Exhale' : 'Inhale');
+    }, 4000);
+    return () => clearInterval(interval);
+  }, []);
+  return <>{text}</>;
+};
+
+const FocusMode = React.memo(({ habit, onClose, onComplete, onDelete, onEdit }: { habit: Habit, onClose: () => void, onComplete: () => void, onDelete: (id: string) => void, onEdit: (habit: Habit) => void }) => {
+  const [mode, setMode] = useState<'focus' | 'history' | 'breathe'>('focus');
   const [timeLeft, setTimeLeft] = useState(habit.duration * 60);
   const [isActive, setIsActive] = useState(true);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [isMusicPlaying, setIsMusicPlaying] = useState(false);
+  const audioRef = React.useRef<HTMLAudioElement | null>(null);
   
+  useEffect(() => {
+    if (isMusicPlaying) {
+      if (!audioRef.current) {
+        audioRef.current = new Audio('https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3');
+        audioRef.current.loop = true;
+      }
+      audioRef.current.play().catch(e => console.error("Audio play failed", e));
+    } else {
+      audioRef.current?.pause();
+    }
+    return () => {
+      audioRef.current?.pause();
+    };
+  }, [isMusicPlaying]);
+
   useEffect(() => {
     let timer: any;
     if (isActive && timeLeft > 0) {
@@ -658,6 +808,12 @@ const FocusMode = React.memo(({ habit, onClose, onComplete, onDelete }: { habit:
               <Timer size={16} /> Session
             </button>
             <button 
+              onClick={() => setMode('breathe')}
+              className={`px-4 py-2 rounded-xl text-sm font-bold transition-all flex items-center gap-2 ${mode === 'breathe' ? 'bg-white text-black shadow-sm' : 'text-black/60'}`}
+            >
+              <Activity size={16} /> Breathe
+            </button>
+            <button 
               onClick={() => setMode('history')}
               className={`px-4 py-2 rounded-xl text-sm font-bold transition-all flex items-center gap-2 ${mode === 'history' ? 'bg-white text-black shadow-sm' : 'text-black/60'}`}
             >
@@ -665,7 +821,7 @@ const FocusMode = React.memo(({ habit, onClose, onComplete, onDelete }: { habit:
             </button>
           </div>
 
-          <div className="w-10" /> {/* Spacer */}
+          <button onClick={() => onEdit(habit)} className="p-2 hover:bg-black/10 rounded-full transition-colors"><Edit size={24} /></button>
         </div>
         
         <div className="flex-1 flex flex-col items-center justify-center w-full mt-12 overflow-hidden">
@@ -688,10 +844,13 @@ const FocusMode = React.memo(({ habit, onClose, onComplete, onDelete }: { habit:
                 </div>
 
                 <div className="w-full max-w-md space-y-3">
-                  <div className="bg-white/30 backdrop-blur-md p-4 rounded-2xl flex items-center gap-3">
-                    <Music size={20} />
-                    <span className="font-medium">Calm music can help you</span>
-                  </div>
+                  <button 
+                    onClick={() => setIsMusicPlaying(!isMusicPlaying)}
+                    className={`w-full p-4 rounded-2xl flex items-center gap-3 transition-all ${isMusicPlaying ? 'bg-white text-black shadow-lg' : 'bg-white/30 text-black'}`}
+                  >
+                    <Music size={20} className={isMusicPlaying ? 'animate-pulse' : ''} />
+                    <span className="font-bold">{isMusicPlaying ? 'Stop Ambient Music' : 'Play Ambient Music'}</span>
+                  </button>
                   <div className="bg-white/30 backdrop-blur-md p-4 rounded-2xl flex items-center gap-3">
                     <Zap size={20} />
                     <span className="font-medium">Mindful breathing helps you relax</span>
@@ -715,6 +874,30 @@ const FocusMode = React.memo(({ habit, onClose, onComplete, onDelete }: { habit:
                     {timeLeft === 0 ? 'Finish' : 'Done Early'}
                   </button>
                 </div>
+              </motion.div>
+            ) : mode === 'breathe' ? (
+              <motion.div 
+                key="breathe"
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.9 }}
+                className="flex-1 flex flex-col items-center justify-center w-full"
+              >
+                <h2 className="text-3xl font-black mb-12">Breathe Deeply</h2>
+                <motion.div 
+                  animate={{ scale: [1, 1.5, 1] }}
+                  transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
+                  className="w-48 h-48 bg-white/40 rounded-full flex items-center justify-center border-4 border-white"
+                >
+                  <motion.div 
+                    animate={{ opacity: [0.5, 1, 0.5] }}
+                    transition={{ duration: 8, repeat: Infinity }}
+                    className="text-2xl font-black"
+                  >
+                    <BreatheText />
+                  </motion.div>
+                </motion.div>
+                <p className="mt-12 text-xl font-bold opacity-80">Follow the circle</p>
               </motion.div>
             ) : (
               <motion.div 
@@ -1089,115 +1272,26 @@ const DeleteHabitConfirmationModal = React.memo(({ habitName, onConfirm, onCance
   );
 });
 
-const ProfileView = React.memo(({ habits, userName, habitGoal, onViewChange, onDelete }: { 
+const ProfileView = React.memo(({ habits, userName, habitGoal, onViewChange, onDelete, onAdd, stats, earnedBadges }: { 
   habits: Habit[], 
   userName: string, 
   habitGoal: HabitGoal,
   onViewChange: (view: 'dashboard' | 'profile') => void,
   onDelete: (id: string) => void,
+  onAdd: () => void,
+  stats: { totalCompletions: number, maxStreak: number, currentStreak: number },
+  earnedBadges: Badge[],
   key?: string
 }) => {
   const [activeTab, setActiveTab] = useState<'weekly' | 'distribution' | 'calendar' | 'badges'>('weekly');
   const [habitToDelete, setHabitToDelete] = useState<Habit | null>(null);
   
-  const totalCompletions = useMemo(() => habits.reduce((acc, h) => acc + h.completedDates.length, 0), [habits]);
-  
-  const maxStreak = useMemo(() => {
-    if (habits.length === 0) return 0;
-    
-    let overallMax = 0;
-    
-    habits.forEach(habit => {
-      if (habit.completedDates.length === 0) return;
-      
-      const sortedDates = [...habit.completedDates].sort();
-      let currentStreak = 1;
-      let habitMax = 1;
-      
-      for (let i = 1; i < sortedDates.length; i++) {
-        const prev = new Date(sortedDates[i-1]);
-        const curr = new Date(sortedDates[i]);
-        
-        // Difference in days
-        const diffTime = Math.abs(curr.getTime() - prev.getTime());
-        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-        
-        if (diffDays === 1) {
-          currentStreak++;
-        } else if (diffDays > 1) {
-          currentStreak = 1;
-        }
-        
-        if (currentStreak > habitMax) {
-          habitMax = currentStreak;
-        }
-      }
-      
-      if (habitMax > overallMax) {
-        overallMax = habitMax;
-      }
-    });
-    
-    return overallMax;
-  }, [habits]);
-
-  const currentStreak = useMemo(() => {
-    if (habits.length === 0) return 0;
-    
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    const yesterday = new Date(today);
-    yesterday.setDate(yesterday.getDate() - 1);
-    
-    const todayStr = today.toISOString().split('T')[0];
-    const yesterdayStr = yesterday.toISOString().split('T')[0];
-    
-    let maxCurrent = 0;
-    
-    habits.forEach(habit => {
-      const sortedDates = [...habit.completedDates].sort().reverse();
-      if (sortedDates.length === 0) return;
-      
-      const lastDateStr = sortedDates[0].split('T')[0];
-      
-      if (lastDateStr !== todayStr && lastDateStr !== yesterdayStr) return;
-      
-      let streak = 1;
-      for (let i = 0; i < sortedDates.length - 1; i++) {
-        const curr = new Date(sortedDates[i]);
-        const next = new Date(sortedDates[i+1]);
-        
-        const diffTime = Math.abs(curr.getTime() - next.getTime());
-        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-        
-        if (diffDays === 1) {
-          streak++;
-        } else if (diffDays > 1) {
-          break;
-        }
-      }
-      if (streak > maxCurrent) maxCurrent = streak;
-    });
-    
-    return maxCurrent;
-  }, [habits]);
-
-  const stats = useMemo(() => ({
-    totalCompletions,
-    maxStreak,
-    currentStreak
-  }), [totalCompletions, maxStreak, currentStreak]);
-
-  const earnedBadges = useMemo(() => {
-    return BADGES.filter(badge => badge.requirement(habits, stats));
-  }, [habits, stats]);
-
   const points = useMemo(() => {
-    const completionPoints = totalCompletions * 10;
-    const streakBonus = Math.floor(maxStreak / 7) * 50;
+    const completionPoints = stats.totalCompletions * 10;
+    const streakBonus = Math.floor(stats.maxStreak / 7) * 50;
     const badgeBonus = earnedBadges.length * 100;
     return completionPoints + streakBonus + badgeBonus;
-  }, [totalCompletions, maxStreak, earnedBadges]);
+  }, [stats.totalCompletions, stats.maxStreak, earnedBadges]);
 
   const level = useMemo(() => Math.floor(points / 500) + 1, [points]);
   const nextLevelPoints = level * 500;
@@ -1318,7 +1412,7 @@ const ProfileView = React.memo(({ habits, userName, habitGoal, onViewChange, onD
             <h3 className="text-2xl font-black">Best Streak</h3>
           </div>
           <div className="flex items-baseline gap-2">
-            <span className="text-6xl font-black">{maxStreak}</span>
+            <span className="text-6xl font-black">{stats.maxStreak}</span>
             <span className="text-2xl font-bold opacity-80">Days</span>
           </div>
           <p className="mt-4 text-white/80 font-medium">
@@ -1350,7 +1444,7 @@ const ProfileView = React.memo(({ habits, userName, habitGoal, onViewChange, onD
           <div className={`w-10 h-10 rounded-xl flex items-center justify-center mb-4 ${activeTab === 'calendar' ? 'bg-white/20 text-white' : 'bg-brand-green/10 text-brand-green'}`}>
             <Check size={20} />
           </div>
-          <p className="text-2xl font-black dark:text-white">{totalCompletions}</p>
+          <p className="text-2xl font-black dark:text-white">{stats.totalCompletions}</p>
           <p className={`text-xs font-bold uppercase ${activeTab === 'calendar' ? 'text-white/60' : 'text-slate-400 dark:text-zinc-500'}`}>Completions</p>
         </div>
         <div 
@@ -1367,7 +1461,7 @@ const ProfileView = React.memo(({ habits, userName, habitGoal, onViewChange, onD
           <div className="w-10 h-10 bg-yellow-100 dark:bg-yellow-500/10 text-yellow-500 rounded-xl flex items-center justify-center mb-4">
             <Zap size={20} />
           </div>
-          <p className="text-2xl font-black dark:text-white">{currentStreak} Days</p>
+          <p className="text-2xl font-black dark:text-white">{stats.currentStreak} Days</p>
           <p className="text-xs font-bold text-slate-400 dark:text-zinc-500 uppercase">Current Streak</p>
         </div>
         <div 
@@ -1602,9 +1696,12 @@ const ProfileView = React.memo(({ habits, userName, habitGoal, onViewChange, onD
       {/* Bottom Nav */}
       <div className="fixed bottom-8 left-1/2 -translate-x-1/2 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-xl border border-white/20 dark:border-white/10 px-6 py-4 rounded-[40px] shadow-2xl flex items-center gap-12 z-40">
         <button onClick={() => onViewChange('dashboard')} className="text-slate-400 hover:text-black dark:hover:text-white transition-colors"><Home size={24} /></button>
-        <div className="w-14 h-14 bg-slate-100 dark:bg-zinc-800 text-slate-300 dark:text-zinc-600 rounded-full flex items-center justify-center cursor-not-allowed">
+        <button 
+          onClick={onAdd}
+          className="w-14 h-14 bg-brand-blue text-white rounded-full flex items-center justify-center shadow-lg shadow-brand-blue/30 active:scale-90 transition-transform"
+        >
           <Plus size={28} />
-        </div>
+        </button>
         <button onClick={() => onViewChange('profile')} className="text-black dark:text-white"><User size={24} /></button>
       </div>
 
@@ -1637,9 +1734,12 @@ export default function App() {
   const [userName, setUserName] = useState('User');
   const [habits, setHabits] = useState<Habit[]>([]);
   const [isAdding, setIsAdding] = useState(false);
+  const [habitToEdit, setHabitToEdit] = useState<Habit | null>(null);
   const [isCalendarOpen, setIsCalendarOpen] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [selectedHabit, setSelectedHabit] = useState<Habit | null>(null);
+  const [unlockedBadges, setUnlockedBadges] = useState<Badge[]>([]);
+  const [currentUnlock, setCurrentUnlock] = useState<Badge | null>(null);
   const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
   const [habitGoal, setHabitGoal] = useState<HabitGoal>(() => {
     const saved = localStorage.getItem('habit_goal');
@@ -1651,6 +1751,97 @@ export default function App() {
     const saved = localStorage.getItem('dark_mode');
     return saved === 'true';
   });
+
+  const totalCompletions = useMemo(() => habits.reduce((acc, h) => acc + h.completedDates.length, 0), [habits]);
+  
+  const maxStreak = useMemo(() => {
+    if (habits.length === 0) return 0;
+    let overallMax = 0;
+    habits.forEach(habit => {
+      if (habit.completedDates.length === 0) return;
+      const sortedDates = [...habit.completedDates].sort();
+      let currentStreak = 1;
+      let habitMax = 1;
+      for (let i = 1; i < sortedDates.length; i++) {
+        const prev = new Date(sortedDates[i-1]);
+        const curr = new Date(sortedDates[i]);
+        const diffTime = Math.abs(curr.getTime() - prev.getTime());
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+        if (diffDays === 1) {
+          currentStreak++;
+        } else if (diffDays > 1) {
+          currentStreak = 1;
+        }
+        if (currentStreak > habitMax) habitMax = currentStreak;
+      }
+      if (habitMax > overallMax) overallMax = habitMax;
+    });
+    return overallMax;
+  }, [habits]);
+
+  const currentStreak = useMemo(() => {
+    if (habits.length === 0) return 0;
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const yesterday = new Date(today);
+    yesterday.setDate(yesterday.getDate() - 1);
+    const todayStr = today.toISOString().split('T')[0];
+    const yesterdayStr = yesterday.toISOString().split('T')[0];
+    let maxCurrent = 0;
+    habits.forEach(habit => {
+      const sortedDates = [...habit.completedDates].sort().reverse();
+      if (sortedDates.length === 0) return;
+      const lastDateStr = sortedDates[0].split('T')[0];
+      if (lastDateStr !== todayStr && lastDateStr !== yesterdayStr) return;
+      let streak = 1;
+      for (let i = 0; i < sortedDates.length - 1; i++) {
+        const curr = new Date(sortedDates[i]);
+        const next = new Date(sortedDates[i+1]);
+        const diffTime = Math.abs(curr.getTime() - next.getTime());
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+        if (diffDays === 1) {
+          streak++;
+        } else if (diffDays > 1) {
+          break;
+        }
+      }
+      if (streak > maxCurrent) maxCurrent = streak;
+    });
+    return maxCurrent;
+  }, [habits]);
+
+  const stats = useMemo(() => ({
+    totalCompletions,
+    maxStreak,
+    currentStreak
+  }), [totalCompletions, maxStreak, currentStreak]);
+
+  const earnedBadges = useMemo(() => {
+    return BADGES.filter(badge => badge.requirement(habits, stats));
+  }, [habits, stats]);
+
+  // --- Badge Notifications ---
+  useEffect(() => {
+    const savedUnlocked = localStorage.getItem('unlocked_badges');
+    const previouslyUnlockedIds = savedUnlocked ? JSON.parse(savedUnlocked) : [];
+    
+    const newlyEarned = earnedBadges.filter(badge => !previouslyUnlockedIds.includes(badge.id));
+    
+    if (newlyEarned.length > 0) {
+      const newIds = [...previouslyUnlockedIds, ...newlyEarned.map(b => b.id)];
+      localStorage.setItem('unlocked_badges', JSON.stringify(newIds));
+      
+      // Queue up the unlocks
+      setUnlockedBadges(prev => [...prev, ...newlyEarned]);
+    }
+  }, [earnedBadges]);
+
+  useEffect(() => {
+    if (unlockedBadges.length > 0 && !currentUnlock) {
+      setCurrentUnlock(unlockedBadges[0]);
+      setUnlockedBadges(prev => prev.slice(1));
+    }
+  }, [unlockedBadges, currentUnlock]);
 
   useEffect(() => {
     if (step !== 'splash') {
@@ -1765,15 +1956,24 @@ export default function App() {
   };
 
   const handleAddHabit = (data: Omit<Habit, 'id' | 'completedDates' | 'createdAt'>) => {
-    const newHabit: Habit = {
-      ...data,
-      id: Math.random().toString(36).substr(2, 9),
-      completedDates: [],
-      createdAt: new Date().toISOString(),
-    };
-    const newHabits = [...habits, newHabit];
-    setHabits(newHabits);
-    saveHabits(newHabits);
+    if (habitToEdit) {
+      const newHabits = habits.map(h => h.id === habitToEdit.id ? { ...h, ...data } : h);
+      setHabits(newHabits);
+      saveHabits(newHabits);
+      setHabitToEdit(null);
+      showToast(`Habit "${data.name}" updated!`);
+    } else {
+      const newHabit: Habit = {
+        ...data,
+        id: Math.random().toString(36).substr(2, 9),
+        completedDates: [],
+        createdAt: new Date().toISOString(),
+      };
+      const newHabits = [...habits, newHabit];
+      setHabits(newHabits);
+      saveHabits(newHabits);
+      showToast(`Habit "${data.name}" created!`);
+    }
     setIsAdding(false);
   };
 
@@ -1838,6 +2038,8 @@ export default function App() {
             onViewChange={setView}
             sortOption={sortOption}
             onSortChange={setSortOption}
+            stats={stats}
+            earnedBadges={earnedBadges}
           />
         ) : (
           <ProfileView 
@@ -1847,6 +2049,9 @@ export default function App() {
             habitGoal={habitGoal}
             onViewChange={setView}
             onDelete={handleDeleteHabit}
+            onAdd={() => setIsAdding(true)}
+            stats={stats}
+            earnedBadges={earnedBadges}
           />
         )}
       </AnimatePresence>
@@ -1854,8 +2059,12 @@ export default function App() {
       <AnimatePresence>
         {isAdding && (
           <AddHabitModal 
-            onClose={() => setIsAdding(false)} 
-            onSave={handleAddHabit} 
+            onClose={() => {
+              setIsAdding(false);
+              setHabitToEdit(null);
+            }} 
+            onSave={handleAddHabit}
+            habitToEdit={habitToEdit || undefined}
           />
         )}
         {isCalendarOpen && (
@@ -1882,6 +2091,17 @@ export default function App() {
             onClose={() => setSelectedHabit(null)} 
             onComplete={() => handleToggleHabit(selectedHabit.id)}
             onDelete={handleDeleteHabit}
+            onEdit={(h) => {
+              setHabitToEdit(h);
+              setIsAdding(true);
+              setSelectedHabit(null);
+            }}
+          />
+        )}
+        {currentUnlock && (
+          <BadgeUnlockModal 
+            badge={currentUnlock} 
+            onClose={() => setCurrentUnlock(null)} 
           />
         )}
       </AnimatePresence>
