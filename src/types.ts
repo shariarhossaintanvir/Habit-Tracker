@@ -17,6 +17,7 @@ import {
   Camera,
   Cloud,
   Flame,
+  Crown,
   Gamepad2,
   Gift,
   Glasses,
@@ -55,6 +56,13 @@ import {
   Wine
 } from 'lucide-react';
 
+export type SortOption = 'Most Recent' | 'Alphabetical' | 'Completion Rate';
+
+export interface HabitGoal {
+  type: 'daily' | 'weekly';
+  target: number;
+}
+
 export interface Habit {
   id: string;
   name: string;
@@ -65,7 +73,70 @@ export interface Habit {
   icon: string;
   completedDates: string[]; // ISO strings
   createdAt: string;
+  reminderTime?: string; // HH:mm format
 }
+
+export interface Badge {
+  id: string;
+  name: string;
+  description: string;
+  icon: any; // Lucide icon component
+  color: string;
+  requirement: (habits: Habit[], stats: { totalCompletions: number, maxStreak: number, currentStreak: number }) => boolean;
+}
+
+export const BADGES: Badge[] = [
+  {
+    id: 'first-habit',
+    name: 'First Step',
+    description: 'Complete your first habit session',
+    icon: Zap,
+    color: '#FDE047',
+    requirement: (_, stats) => stats.totalCompletions >= 1
+  },
+  {
+    id: 'habit-master',
+    name: 'Habit Master',
+    description: 'Complete 100 habit sessions',
+    icon: Trophy,
+    color: '#BEF264',
+    requirement: (_, stats) => stats.totalCompletions >= 100
+  },
+  {
+    id: 'week-warrior',
+    name: 'Week Warrior',
+    description: 'Maintain a 7-day streak',
+    icon: Flame,
+    color: '#FB923C',
+    requirement: (_, stats) => stats.maxStreak >= 7
+  },
+  {
+    id: 'month-monarch',
+    name: 'Month Monarch',
+    description: 'Maintain a 30-day streak',
+    icon: Crown,
+    color: '#A78BFA',
+    requirement: (_, stats) => stats.maxStreak >= 30
+  },
+  {
+    id: 'early-bird',
+    name: 'Early Bird',
+    description: 'Complete 5 habits',
+    icon: Sun,
+    color: '#38BDF8',
+    requirement: (habits) => {
+      return habits.reduce((acc, h) => acc + h.completedDates.length, 0) >= 5;
+    }
+  },
+  {
+    id: 'variety-king',
+    name: 'Variety King',
+    description: 'Have 5 active habits',
+    icon: Palette,
+    color: '#F9A8D4',
+    requirement: (habits) => habits.length >= 5
+  }
+];
 
 export const HABIT_COLORS = [
   '#FDE047', // Yellow
