@@ -1,0 +1,5 @@
+{
+  "name": "Habitly - Playful Habit Tracker",
+  "description": "A vibrant, bento-style habit tracker with playful animations and local data storage.",
+  "requestFramePermissions": []
+}
