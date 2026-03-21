@@ -1,5 +1,5 @@
 {
-  "name": "react-example",
+  "name": "dual-habit-tracker",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -8,7 +8,7 @@
     "build": "vite build",
     "preview": "vite preview",
     "clean": "rm -rf dist",
-    "lint": "tsc --noEmit"
+    "lint": "echo 'No linting needed for vanilla JS'"
   },
   "dependencies": {
     "@google/genai": "^1.29.0",

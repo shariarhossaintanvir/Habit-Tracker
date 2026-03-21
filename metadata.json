@@ -1,5 +1,5 @@
 {
-  "name": "Habitly - Playful Habit Tracker",
-  "description": "A vibrant, bento-style habit tracker with playful animations and local data storage.",
+  "name": "Dual Habit Tracker",
+  "description": "A modern, mobile-friendly habit tracker for both good and bad habits with a clean toggle-based interface.",
   "requestFramePermissions": []
 }

@@ -3,11 +3,191 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>My Google AI Studio App</title>
+    <title>Dual Habit Tracker</title>
+    <link rel="stylesheet" href="/src/index.css" />
   </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
+  <body class="mode-good">
+    <!-- Splash Screen -->
+    <div id="splashScreen" class="splash-screen">
+      <div class="splash-content">
+        <h1 class="splash-title">Build healthy<br>habits with us</h1>
+        <div class="splash-image">
+          <!-- Placeholder for the character icon -->
+          <div class="character-placeholder">
+            <div class="orange-ball">
+              <div class="glasses"></div>
+              <div class="smile"></div>
+            </div>
+          </div>
+        </div>
+        <button id="getStartedBtn" class="btn-splash">Get started</button>
+        <a href="#" class="splash-link">I have an account</a>
+        <p class="splash-footer">By starting or signing in, you agree to our <a href="#">Terms of use</a></p>
+      </div>
+    </div>
+
+    <div id="app" style="display: none;">
+      <header>
+        <div class="header-top">
+          <div class="user-info">
+            <p class="greeting-prefix">Good morning,</p>
+            <h1 id="userName">Diana</h1>
+          </div>
+          <div class="header-actions">
+            <div class="toggle-container">
+              <label class="switch">
+                <input type="checkbox" id="modeToggle">
+                <span class="slider round"></span>
+              </label>
+            </div>
+            <button class="icon-btn"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg></button>
+          </div>
+        </div>
+
+        <div class="date-selector">
+          <div class="date-pill"><span>11</span><small>Mon</small></div>
+          <div class="date-pill active"><span>12</span><small>Tue</small></div>
+          <div class="date-pill"><span>13</span><small>Wed</small></div>
+          <div class="date-pill"><span>14</span><small>Thu</small></div>
+          <div class="date-pill"><span>15</span><small>Fri</small></div>
+          <div class="date-pill"><span>16</span><small>Sat</small></div>
+        </div>
+      </header>
+
+      <main>
+        <div id="habitList" class="habit-grid">
+          <!-- Habits will be injected here as bento cards -->
+        </div>
+        <div id="emptyState" class="empty-state">
+          <div class="empty-illustration">
+            <div class="orange-ball bounce">
+              <div class="glasses"></div>
+              <div class="character-smile"></div>
+            </div>
+            <div class="sparkle s1">✨</div>
+            <div class="sparkle s2">✨</div>
+          </div>
+          <h3>Ready to start?</h3>
+          <p>Every journey begins with a single step. Tap the plus button to add your first habit!</p>
+          <button id="emptyAddBtn" class="btn-empty-add">Add your first habit</button>
+        </div>
+      </main>
+
+      <nav class="bottom-nav">
+        <button class="nav-btn active"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg></button>
+        <button id="fab" class="fab-center" aria-label="Add Habit">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+        </button>
+        <div class="profile-pic">
+          <img src="https://picsum.photos/seed/diana/100/100" alt="Profile" referrerPolicy="no-referrer">
+        </div>
+      </nav>
+
+      <!-- Habit Detail / Timer View -->
+      <div id="detailView" class="detail-view">
+        <div class="detail-header">
+          <button id="closeDetailBtn" class="close-btn"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
+          <div id="detailIcon" class="detail-icon-display"></div>
+          <h2 id="detailTitle">Meditation</h2>
+        </div>
+        
+        <div class="detail-content">
+          <div class="detail-character">
+            <div class="orange-ball large">
+              <div class="glasses"></div>
+              <div class="meditate-arms"></div>
+            </div>
+          </div>
+          
+          <div class="timer-display">
+            <span id="timerText">00 min 00 s</span>
+          </div>
+
+          <div class="tips-list">
+            <div class="tip-item">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18V5l12-2v13"></path><circle cx="6" cy="18" r="3"></circle><circle cx="18" cy="16" r="3"></circle></svg>
+              <span>Calm music can help you</span>
+            </div>
+            <div class="tip-item">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0"></path><path d="M12 12m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0"></path></svg>
+              <span>Mindful breathing helps you relax</span>
+            </div>
+            <div class="tip-item">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"></path></svg>
+              <span>Water is important</span>
+            </div>
+          </div>
+
+          <button id="finishBtn" class="btn-finish">Finish</button>
+          <button id="deleteHabitBtn" class="btn-delete-detail">Delete Habit</button>
+        </div>
+      </div>
+
+      <!-- Modal -->
+      <div id="modal" class="modal">
+        <div class="modal-content full-screen">
+          <div class="modal-header">
+            <button id="cancelBtn" class="close-btn"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
+            <h2>Let's start a new habit</h2>
+          </div>
+          
+          <div class="form-group">
+            <label>Name</label>
+            <input type="text" id="habitInput" placeholder="Type habit name" autocomplete="off">
+          </div>
+
+          <div class="form-group">
+            <label>Description</label>
+            <textarea id="habitDesc" placeholder="Describe a habit"></textarea>
+          </div>
+
+          <div class="form-group">
+            <label>Intervals</label>
+            <select id="habitInterval">
+              <option value="daily">Every day</option>
+              <option value="weekly">Weekly</option>
+              <option value="monthly">Monthly</option>
+              <option value="specific">Specific Days</option>
+            </select>
+          </div>
+
+          <div class="form-group" id="dayPickerContainer" style="display: none;">
+            <label>Repeat on</label>
+            <div class="day-picker">
+              <div class="day-btn" data-day="0">S</div>
+              <div class="day-btn" data-day="1">M</div>
+              <div class="day-btn" data-day="2">T</div>
+              <div class="day-btn" data-day="3">W</div>
+              <div class="day-btn" data-day="4">T</div>
+              <div class="day-btn" data-day="5">F</div>
+              <div class="day-btn" data-day="6">S</div>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label>Start Date</label>
+              <input type="date" id="habitStartDate">
+            </div>
+            <div class="form-group">
+              <label>Goal Date</label>
+              <input type="date" id="habitGoalDate">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Icon</label>
+            <input type="file" id="customIconInput" accept="image/*" style="display: none;">
+            <div class="icon-grid" id="iconGrid">
+              <!-- Icons will be generated here -->
+            </div>
+          </div>
+
+          <button id="addBtn" class="btn-submit">Add Habit</button>
+        </div>
+      </div>
+    </div>
+    <script type="module" src="/src/main.js"></script>
   </body>
 </html>
 
