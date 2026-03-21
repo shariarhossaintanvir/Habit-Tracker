@@ -10,6 +10,7 @@ let habits = {
 };
 let selectedIcon = '📚';
 let selectedDate = new Date().toISOString().split('T')[0];
+let currentTheme = localStorage.getItem('dualHabitTheme') || 'default';
 
 const icons = ['📚', '🏋️', '💻', '💰', '🧘', '🥦', '💧', '🛌', '🧹', '🎨', '🎸', '🚶', '🍎', '🚭', '📵', '🏃', '🏊', '🚴', '🥗', '💊', '🧠', '✍️', '🌱', '🧹', '🚿', '🍵', '📅', '🎯', '🔥', '✨'];
 
@@ -41,6 +42,12 @@ const finishBtn = document.getElementById('finishBtn');
 const deleteHabitBtn = document.getElementById('deleteHabitBtn');
 const dayPickerContainer = document.getElementById('dayPickerContainer');
 const dayBtns = document.querySelectorAll('.day-btn');
+const settingsModal = document.getElementById('settingsModal');
+const settingsBtn = document.getElementById('settingsBtn');
+const closeSettingsBtn = document.getElementById('closeSettingsBtn');
+const themeOptions = document.querySelectorAll('.theme-option');
+const resetDataBtn = document.getElementById('resetDataBtn');
+const profilePic = document.querySelector('.profile-pic');
 
 let timerInterval;
 let seconds = 0;
@@ -49,6 +56,7 @@ let activeHabitIndex = null;
 // Initialize App
 function init() {
     loadData();
+    applyTheme(currentTheme);
     const savedName = localStorage.getItem('dualHabitUserName');
     if (savedName) {
         document.getElementById('userName').textContent = savedName;
@@ -80,6 +88,17 @@ function updateDates() {
         };
         dateSelector.appendChild(pill);
     }
+}
+
+function applyTheme(theme) {
+    currentTheme = theme;
+    body.setAttribute('data-theme', theme);
+    localStorage.setItem('dualHabitTheme', theme);
+    
+    // Update active state in UI
+    document.querySelectorAll('.theme-option').forEach(opt => {
+        opt.classList.toggle('active', opt.dataset.theme === theme);
+    });
 }
 
 // Load data from LocalStorage
@@ -392,9 +411,26 @@ function setupEventListeners() {
         stopTimer();
     });
 
-    const profilePic = document.querySelector('.profile-pic');
     profilePic.style.cursor = 'pointer';
     profilePic.addEventListener('click', () => {
+        settingsModal.classList.add('active');
+    });
+
+    settingsBtn.addEventListener('click', () => {
+        settingsModal.classList.add('active');
+    });
+
+    closeSettingsBtn.addEventListener('click', () => {
+        settingsModal.classList.remove('active');
+    });
+
+    themeOptions.forEach(opt => {
+        opt.addEventListener('click', () => {
+            applyTheme(opt.dataset.theme);
+        });
+    });
+
+    resetDataBtn.addEventListener('click', () => {
         if (confirm('Reset all app data? This cannot be undone.')) {
             localStorage.clear();
             location.reload();
