@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Space+Grotesk:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap');
 @import "tailwindcss";
 
 @variant dark (&:where(.dark, .dark *));
@@ -6,15 +6,17 @@
 @theme {
   --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
   --font-display: "Space Grotesk", sans-serif;
+  --font-mono: "JetBrains Mono", monospace;
   --color-brand-blue: #4F46E5;
   --color-brand-green: #BEF264;
   --color-brand-yellow: #FDE047;
   --color-brand-pink: #F9A8D4;
+  --color-brand-orange: #FF6321;
 }
 
 @layer base {
   body {
-    @apply font-sans bg-slate-50 text-slate-900 antialiased overflow-x-hidden transition-colors duration-500;
+    @apply font-sans bg-[#FBFBF9] text-slate-900 antialiased overflow-x-hidden transition-colors duration-500;
   }
 }
 
@@ -23,15 +25,31 @@
 }
 
 .bento-card {
-  @apply rounded-[32px] p-6 transition-all duration-300;
+  @apply rounded-2xl p-4 transition-all duration-500 border border-slate-100 dark:border-white/5 shadow-sm hover:shadow-xl hover:-translate-y-1;
+}
+
+.dark .bento-card {
+  @apply bg-zinc-900 shadow-none hover:bg-zinc-800/80;
 }
 
 .calendar-pill {
-  @apply flex flex-col items-center justify-center w-14 h-20 rounded-2xl transition-all duration-200;
+  @apply flex flex-col items-center justify-center w-10 h-16 rounded-xl transition-all duration-300 border border-transparent;
+}
+
+.glass-morphism {
+  @apply bg-white/70 dark:bg-zinc-900/70 backdrop-blur-xl border border-white/20 dark:border-white/5;
+}
+
+.neo-brutalist-shadow {
+  box-shadow: 8px 8px 0px 0px rgba(0,0,0,1);
+}
+
+.dark .neo-brutalist-shadow {
+  box-shadow: 8px 8px 0px 0px rgba(255,255,255,0.1);
 }
 
 .custom-scrollbar::-webkit-scrollbar {
-  width: 4px;
+  width: 6px;
 }
 
 .custom-scrollbar::-webkit-scrollbar-track {
@@ -45,4 +63,14 @@
 
 .dark .custom-scrollbar::-webkit-scrollbar-thumb {
   background: rgba(255, 255, 255, 0.1);
+}
+
+@keyframes float {
+  0% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+  100% { transform: translateY(0px); }
+}
+
+.animate-float {
+  animation: float 3s ease-in-out infinite;
 }
