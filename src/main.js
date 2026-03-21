@@ -11,8 +11,16 @@ let habits = {
 let selectedIcon = '📚';
 let selectedDate = new Date().toISOString().split('T')[0];
 let currentTheme = localStorage.getItem('dualHabitTheme') || 'default';
+let profileSeed = localStorage.getItem('dualHabitProfileSeed') || 'diana';
+let colorScheme = localStorage.getItem('dualHabitColorScheme') || 'light';
 
 const icons = ['📚', '🏋️', '💻', '💰', '🧘', '🥦', '💧', '🛌', '🧹', '🎨', '🎸', '🚶', '🍎', '🚭', '📵', '🏃', '🏊', '🚴', '🥗', '💊', '🧠', '✍️', '🌱', '🧹', '🚿', '🍵', '📅', '🎯', '🔥', '✨'];
+
+// Sound Effects
+const sounds = {
+    success: new Audio('https://assets.mixkit.co/active_storage/sfx/2013/2013-preview.mp3'),
+    alert: new Audio('https://assets.mixkit.co/active_storage/sfx/2014/2014-preview.mp3')
+};
 
 // DOM Elements
 const body = document.body;
@@ -48,6 +56,16 @@ const closeSettingsBtn = document.getElementById('closeSettingsBtn');
 const themeOptions = document.querySelectorAll('.theme-option');
 const resetDataBtn = document.getElementById('resetDataBtn');
 const profilePic = document.querySelector('.profile-pic');
+const userNameInput = document.getElementById('userNameInput');
+const changePicBtn = document.getElementById('changePicBtn');
+const settingsProfileImg = document.getElementById('settingsProfileImg');
+const mainProfileImg = profilePic.querySelector('img');
+const userNameDisplay = document.getElementById('userName');
+const progressBar = document.getElementById('progressBar');
+const progressText = document.getElementById('progressText');
+const streakText = document.getElementById('streakText');
+const smartMessage = document.getElementById('smartMessage');
+const darkModeToggle = document.getElementById('darkModeToggle');
 
 let timerInterval;
 let seconds = 0;
@@ -57,14 +75,19 @@ let activeHabitIndex = null;
 function init() {
     loadData();
     applyTheme(currentTheme);
-    const savedName = localStorage.getItem('dualHabitUserName');
-    if (savedName) {
-        document.getElementById('userName').textContent = savedName;
-    }
+    applyColorScheme(colorScheme);
+    
+    const savedName = localStorage.getItem('dualHabitUserName') || 'Diana';
+    userNameDisplay.textContent = savedName;
+    userNameInput.value = savedName;
+    
+    updateProfileUI();
+    
     renderHabits();
     renderIconGrid();
     setupEventListeners();
     updateDates();
+    updateStats();
 }
 
 function updateDates() {
@@ -99,6 +122,69 @@ function applyTheme(theme) {
     document.querySelectorAll('.theme-option').forEach(opt => {
         opt.classList.toggle('active', opt.dataset.theme === theme);
     });
+}
+
+function applyColorScheme(scheme) {
+    colorScheme = scheme;
+    body.setAttribute('data-color-scheme', scheme);
+    localStorage.setItem('dualHabitColorScheme', scheme);
+    darkModeToggle.checked = scheme === 'dark';
+}
+
+function updateStats() {
+    const currentHabits = habits[currentMode];
+    if (currentHabits.length === 0) {
+        progressBar.style.width = '0%';
+        progressText.textContent = '0% Completed';
+        streakText.textContent = '0 day streak 🔥';
+        smartMessage.textContent = 'Ready to crush your goals? 🚀';
+        return;
+    }
+
+    // Progress
+    const completedCount = currentHabits.filter(h => h.history[selectedDate]).length;
+    const percentage = Math.round((completedCount / currentHabits.length) * 100);
+    progressBar.style.width = `${percentage}%`;
+    progressText.textContent = `${percentage}% Completed`;
+
+    // Streak
+    let streak = 0;
+    let checkDate = new Date();
+    while (true) {
+        const dateStr = checkDate.toISOString().split('T')[0];
+        const dayHabits = habits[currentMode];
+        const doneAny = dayHabits.some(h => h.history[dateStr]);
+        
+        if (doneAny) {
+            streak++;
+            checkDate.setDate(checkDate.getDate() - 1);
+        } else {
+            // If it's today and nothing done yet, don't break streak yet, check yesterday
+            if (dateStr === new Date().toISOString().split('T')[0]) {
+                checkDate.setDate(checkDate.getDate() - 1);
+                continue;
+            }
+            break;
+        }
+    }
+    streakText.textContent = `${streak} day streak 🔥`;
+
+    // Smart Message
+    if (percentage === 100) {
+        smartMessage.textContent = '🔥 Great job bro! You killed it today!';
+    } else if (percentage >= 50) {
+        smartMessage.textContent = 'Almost there! Keep going! 💪';
+    } else if (percentage > 0) {
+        smartMessage.textContent = 'Good start! Don\'t stop now. ✨';
+    } else {
+        smartMessage.textContent = 'Try harder tomorrow 😈';
+    }
+}
+
+function updateProfileUI() {
+    const url = `https://picsum.photos/seed/${profileSeed}/100/100`;
+    mainProfileImg.src = url;
+    settingsProfileImg.src = url;
 }
 
 // Load data from LocalStorage
@@ -180,7 +266,7 @@ function renderHabits() {
         const isDone = habit.history && habit.history[selectedDate];
         const streak = calculateStreak(habit);
         
-        card.className = `habit-card ${isDone ? 'completed' : ''}`;
+        card.className = `habit-card ${isDone ? 'completed animate-bounce' : ''}`;
         card.dataset.index = index;
         
         let dateDisplay = '';
@@ -253,6 +339,7 @@ function toggleMode() {
     currentMode = currentMode === 'good' ? 'bad' : 'good';
     body.className = currentMode === 'good' ? 'mode-good' : 'mode-bad';
     renderHabits();
+    updateStats();
 }
 
 function openDetail(index) {
@@ -296,12 +383,15 @@ function toggleHabit(index) {
     
     if (habit.history[selectedDate]) {
         delete habit.history[selectedDate];
+        sounds.alert.play().catch(() => {});
     } else {
         habit.history[selectedDate] = true;
+        sounds.success.play().catch(() => {});
     }
     
     saveData();
     renderHabits();
+    updateStats();
 }
 
 // Delete Habit
@@ -310,6 +400,7 @@ function deleteHabit(index) {
         habits[currentMode].splice(index, 1);
         saveData();
         renderHabits();
+        updateStats();
     }
 }
 
@@ -329,7 +420,21 @@ function setupEventListeners() {
         });
     });
 
-    modeToggle.addEventListener('change', toggleMode);
+    modeToggle.addEventListener('change', () => {
+        currentMode = modeToggle.checked ? 'bad' : 'good';
+        body.className = `mode-${currentMode}`;
+        // Smooth transition effect
+        body.style.opacity = '0';
+        setTimeout(() => {
+            renderHabits();
+            updateStats();
+            body.style.opacity = '1';
+        }, 200);
+    });
+
+    darkModeToggle.addEventListener('change', () => {
+        applyColorScheme(darkModeToggle.checked ? 'dark' : 'light');
+    });
 
     customIconInput.addEventListener('change', (e) => {
         const file = e.target.files[0];
@@ -437,6 +542,24 @@ function setupEventListeners() {
         }
     });
 
+    userNameInput.addEventListener('input', (e) => {
+        const newName = e.target.value || 'User';
+        userNameDisplay.textContent = newName;
+        localStorage.setItem('dualHabitUserName', newName);
+    });
+
+    changePicBtn.addEventListener('click', () => {
+        const seeds = ['alex', 'jordan', 'casey', 'morgan', 'taylor', 'riley', 'quinn', 'diana', 'felix', 'leo', 'mia', 'zoe'];
+        let newSeed;
+        do {
+            newSeed = seeds[Math.floor(Math.random() * seeds.length)];
+        } while (newSeed === profileSeed);
+        
+        profileSeed = newSeed;
+        localStorage.setItem('dualHabitProfileSeed', profileSeed);
+        updateProfileUI();
+    });
+
     // Habit List interaction
     habitList.addEventListener('click', (e) => {
         const toggleBtn = e.target.closest('[data-action="toggle"]');
@@ -508,6 +631,7 @@ function addHabit() {
     habits[currentMode].push(newHabit);
     saveData();
     renderHabits();
+    updateStats();
     
     modal.classList.remove('active');
     resetForm();

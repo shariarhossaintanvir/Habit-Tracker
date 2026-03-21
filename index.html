@@ -53,6 +53,19 @@
           <div class="date-pill"><span>15</span><small>Fri</small></div>
           <div class="date-pill"><span>16</span><small>Sat</small></div>
         </div>
+
+        <div class="stats-overview glass">
+          <div class="progress-section">
+            <div class="progress-info">
+              <span id="progressText">0% Completed</span>
+              <span id="streakText">0 day streak 🔥</span>
+            </div>
+            <div class="progress-bar-container">
+              <div id="progressBar" class="progress-bar"></div>
+            </div>
+          </div>
+          <p id="smartMessage" class="smart-message">Ready to crush your goals? 🚀</p>
+        </div>
       </header>
 
       <main>
@@ -133,7 +146,30 @@
           </div>
           
           <div class="form-group">
+            <label>Profile</label>
+            <div class="profile-edit-card">
+              <div class="profile-pic-large" id="profilePicLarge">
+                <img id="settingsProfileImg" src="https://picsum.photos/seed/diana/100/100" alt="Profile" referrerPolicy="no-referrer">
+                <button class="edit-pic-btn" id="changePicBtn">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>
+                </button>
+              </div>
+              <div class="profile-info-edit">
+                <input type="text" id="userNameInput" placeholder="Your Name" value="Diana">
+                <p class="profile-hint">Tap the camera to change your avatar seed</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group">
             <label>App Theme</label>
+            <div class="settings-item-row">
+              <span>Dark Mode</span>
+              <label class="switch">
+                <input type="checkbox" id="darkModeToggle">
+                <span class="slider round"></span>
+              </label>
+            </div>
             <div class="theme-grid" id="themeGrid">
               <div class="theme-option active" data-theme="default" style="--theme-color: #5D5FEF;">
                 <div class="theme-preview"></div>
