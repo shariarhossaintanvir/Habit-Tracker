@@ -98,6 +98,75 @@
   gap: 12px;
 }
 
+.daily-quote {
+  margin-top: 16px;
+  padding: 16px 20px;
+  border-radius: 24px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  animation: slideUp 0.6s ease-out;
+  max-height: 200px;
+}
+
+.quote-icon {
+  font-size: 24px;
+  background: var(--accent-gradient);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));
+}
+
+.quote-content {
+  flex: 1;
+}
+
+#quoteText {
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.4;
+  color: var(--text-primary);
+  margin-bottom: 4px;
+  font-style: italic;
+}
+
+#quoteAuthor {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+#streakText {
+  display: inline-block;
+  max-width: 300px;
+}
+
+#streakText, #dailyQuote {
+  transition: opacity 0.3s ease, max-height 0.3s ease, max-width 0.3s ease, margin 0.3s ease, transform 0.3s ease;
+  overflow: hidden;
+}
+
+.scrolled #streakText {
+  opacity: 0;
+  max-width: 0;
+  margin: 0;
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+.scrolled #dailyQuote {
+  opacity: 0;
+  max-height: 0;
+  margin-top: 0;
+  padding-top: 0;
+  padding-bottom: 0;
+  border-width: 0;
+  pointer-events: none;
+  transform: translateY(-10px);
+}
+
 .progress-section {
   display: flex;
   flex-direction: column;

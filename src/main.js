@@ -16,11 +16,23 @@ let colorScheme = localStorage.getItem('dualHabitColorScheme') || 'light';
 
 const icons = ['📚', '🏋️', '💻', '💰', '🧘', '🥦', '💧', '🛌', '🧹', '🎨', '🎸', '🚶', '🍎', '🚭', '📵', '🏃', '🏊', '🚴', '🥗', '💊', '🧠', '✍️', '🌱', '🧹', '🚿', '🍵', '📅', '🎯', '🔥', '✨'];
 
-// Sound Effects
-const sounds = {
-    success: new Audio('https://assets.mixkit.co/active_storage/sfx/2013/2013-preview.mp3'),
-    alert: new Audio('https://assets.mixkit.co/active_storage/sfx/2014/2014-preview.mp3')
-};
+const quotes = [
+    { text: "The only way to do great work is to love what you do.", author: "Steve Jobs" },
+    { text: "Believe you can and you're halfway there.", author: "Theodore Roosevelt" },
+    { text: "It does not matter how slowly you go as long as you do not stop.", author: "Confucius" },
+    { text: "Success is not final, failure is not fatal: it is the courage to continue that counts.", author: "Winston Churchill" },
+    { text: "Your time is limited, don't waste it living someone else's life.", author: "Steve Jobs" },
+    { text: "The best way to predict the future is to invent it.", author: "Alan Kay" },
+    { text: "Don't watch the clock; do what it does. Keep going.", author: "Sam Levenson" },
+    { text: "Everything you've ever wanted is on the other side of fear.", author: "George Addair" },
+    { text: "Hardships often prepare ordinary people for an extraordinary destiny.", author: "C.S. Lewis" },
+    { text: "The only limit to our realization of tomorrow will be our doubts of today.", author: "Franklin D. Roosevelt" },
+    { text: "What you get by achieving your goals is not as important as what you become by achieving your goals.", author: "Zig Ziglar" },
+    { text: "If you can dream it, you can do it.", author: "Walt Disney" },
+    { text: "Action is the foundational key to all success.", author: "Pablo Picasso" },
+    { text: "The future depends on what you do today.", author: "Mahatma Gandhi" },
+    { text: "Don't be pushed around by the fears in your mind. Be led by the dreams in your heart.", author: "Roy T. Bennett" }
+];
 
 // DOM Elements
 const body = document.body;
@@ -51,7 +63,6 @@ const deleteHabitBtn = document.getElementById('deleteHabitBtn');
 const dayPickerContainer = document.getElementById('dayPickerContainer');
 const dayBtns = document.querySelectorAll('.day-btn');
 const settingsModal = document.getElementById('settingsModal');
-const settingsBtn = document.getElementById('settingsBtn');
 const closeSettingsBtn = document.getElementById('closeSettingsBtn');
 const themeOptions = document.querySelectorAll('.theme-option');
 const resetDataBtn = document.getElementById('resetDataBtn');
@@ -88,6 +99,23 @@ function init() {
     setupEventListeners();
     updateDates();
     updateStats();
+    updateDailyQuote();
+}
+
+function updateDailyQuote() {
+    const today = new Date();
+    // Use day of year to select a quote that changes daily
+    const dayOfYear = Math.floor((today - new Date(today.getFullYear(), 0, 0)) / (1000 * 60 * 60 * 24));
+    const quoteIndex = dayOfYear % quotes.length;
+    const quote = quotes[quoteIndex];
+    
+    const quoteText = document.getElementById('quoteText');
+    const quoteAuthor = document.getElementById('quoteAuthor');
+    
+    if (quoteText && quoteAuthor) {
+        quoteText.textContent = `"${quote.text}"`;
+        quoteAuthor.textContent = `- ${quote.author}`;
+    }
 }
 
 function updateDates() {
@@ -383,10 +411,8 @@ function toggleHabit(index) {
     
     if (habit.history[selectedDate]) {
         delete habit.history[selectedDate];
-        sounds.alert.play().catch(() => {});
     } else {
         habit.history[selectedDate] = true;
-        sounds.success.play().catch(() => {});
     }
     
     saveData();
@@ -521,10 +547,6 @@ function setupEventListeners() {
         settingsModal.classList.add('active');
     });
 
-    settingsBtn.addEventListener('click', () => {
-        settingsModal.classList.add('active');
-    });
-
     closeSettingsBtn.addEventListener('click', () => {
         settingsModal.classList.remove('active');
     });
@@ -583,6 +605,15 @@ function setupEventListeners() {
         if (!card) return;
         const index = parseInt(card.dataset.index);
         deleteHabit(index);
+    });
+
+    // Scroll listener to hide streak and motivation
+    window.addEventListener('scroll', () => {
+        if (window.scrollY > 20) {
+            body.classList.add('scrolled');
+        } else {
+            body.classList.remove('scrolled');
+        }
     });
 }
 
