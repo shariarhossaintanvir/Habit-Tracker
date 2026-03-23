@@ -45,8 +45,6 @@ const modal = document.getElementById('modal');
 const habitInput = document.getElementById('habitInput');
 const habitDesc = document.getElementById('habitDesc');
 const habitInterval = document.getElementById('habitInterval');
-const habitStartDate = document.getElementById('habitStartDate');
-const habitGoalDate = document.getElementById('habitGoalDate');
 const iconGrid = document.getElementById('iconGrid');
 const customIconInput = document.getElementById('customIconInput');
 const addBtn = document.getElementById('addBtn');
@@ -297,14 +295,6 @@ function renderHabits() {
         card.className = `habit-card ${isDone ? 'completed animate-bounce' : ''}`;
         card.dataset.index = index;
         
-        let dateDisplay = '';
-        if (habit.startDate || habit.goalDate) {
-            dateDisplay = `<div class="habit-dates">
-                ${habit.startDate ? `<span>Start: ${formatDate(habit.startDate)}</span>` : ''}
-                ${habit.goalDate ? `<span>Goal: ${formatDate(habit.goalDate)}</span>` : ''}
-            </div>`;
-        }
-
         card.innerHTML = `
             <div class="habit-icon">
                 ${habit.icon.startsWith('data:image') 
@@ -323,19 +313,12 @@ function renderHabits() {
                         `).join('')}
                     </div>
                 ` : ''}
-                ${dateDisplay}
                 <div class="streak-badge">🔥 ${streak} day streak</div>
             </div>
             <button class="status-indicator ${isDone ? 'done' : ''}" data-action="toggle"></button>
         `;
         habitList.appendChild(card);
     });
-}
-
-function formatDate(dateStr) {
-    if (!dateStr) return '';
-    const date = new Date(dateStr);
-    return date.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
 }
 
 function calculateStreak(habit) {
@@ -486,10 +469,6 @@ function setupEventListeners() {
     fab.addEventListener('click', () => {
         modal.classList.add('active');
         habitInput.focus();
-        
-        // Set default start date to today
-        const today = new Date().toISOString().split('T')[0];
-        habitStartDate.value = today;
     });
 
     habitInterval.addEventListener('change', () => {
@@ -510,8 +489,6 @@ function setupEventListeners() {
     emptyAddBtn.addEventListener('click', () => {
         modal.classList.add('active');
         habitInput.focus();
-        const today = new Date().toISOString().split('T')[0];
-        habitStartDate.value = today;
     });
 
     cancelBtn.addEventListener('click', () => {
@@ -621,8 +598,6 @@ function resetForm() {
     habitInput.value = '';
     habitDesc.value = '';
     habitInterval.selectedIndex = 0;
-    habitStartDate.value = '';
-    habitGoalDate.value = '';
     habitInterval.value = 'daily';
     dayPickerContainer.style.display = 'none';
     dayBtns.forEach(btn => btn.classList.remove('active'));
@@ -653,8 +628,6 @@ function addHabit() {
         description: habitDesc.value.trim(),
         interval: habitInterval.value,
         days: selectedDays,
-        startDate: habitStartDate.value,
-        goalDate: habitGoalDate.value,
         icon: selectedIcon,
         history: {}
     };
