@@ -96,6 +96,7 @@
   display: flex;
   flex-direction: column;
   gap: 12px;
+  max-height: 400px;
 }
 
 .daily-quote {
@@ -140,36 +141,27 @@
 
 #streakText {
   display: inline-block;
-  max-width: 300px;
 }
 
-#streakText, #dailyQuote, #smartMessage {
+.stats-overview, #dailyQuote {
   transition: 
-    opacity 0.6s cubic-bezier(0.4, 0, 0.2, 1), 
-    max-height 0.6s cubic-bezier(0.4, 0, 0.2, 1), 
-    max-width 0.6s cubic-bezier(0.4, 0, 0.2, 1), 
-    margin 0.6s cubic-bezier(0.4, 0, 0.2, 1), 
-    padding 0.6s cubic-bezier(0.4, 0, 0.2, 1),
-    transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    opacity 0.3s ease-out, 
+    max-height 0.5s cubic-bezier(0.4, 0, 0.2, 1), 
+    margin 0.5s cubic-bezier(0.4, 0, 0.2, 1), 
+    padding 0.5s cubic-bezier(0.4, 0, 0.2, 1),
+    transform 0.4s ease-out;
   overflow: hidden;
-  will-change: transform, opacity, max-height;
+  transform-origin: top;
 }
 
-.scrolled #streakText {
-  opacity: 0;
-  max-width: 0;
-  margin: 0;
-  white-space: nowrap;
-  pointer-events: none;
-  transform: scale(0.8);
-}
-
-.scrolled #smartMessage {
+.scrolled .stats-overview {
   opacity: 0;
   max-height: 0;
-  margin: 0;
+  margin-top: 0;
+  padding-top: 0;
+  padding-bottom: 0;
   pointer-events: none;
-  transform: translateY(-10px);
+  transform: translateY(-5px);
 }
 
 .scrolled #dailyQuote {
@@ -180,7 +172,7 @@
   padding-bottom: 0;
   border-width: 0;
   pointer-events: none;
-  transform: translateY(-20px) scale(0.95);
+  transform: translateY(-5px);
 }
 
 .scrolled .streak-badge {

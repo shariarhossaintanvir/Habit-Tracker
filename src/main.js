@@ -586,7 +586,7 @@ function setupEventListeners() {
 
     // Scroll listener to hide streak and motivation
     window.addEventListener('scroll', () => {
-        if (window.scrollY > 20) {
+        if (window.scrollY > 50) {
             body.classList.add('scrolled');
         } else {
             body.classList.remove('scrolled');
