@@ -8,12 +8,15 @@
   --accent-gradient: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
   --highlight-color: #bef264;
   --card-bg: rgba(255, 255, 255, 0.7);
-  --glass-border: rgba(255, 255, 255, 0.3);
+  --glass-border: rgba(255, 255, 255, 0.1);
   --glass-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.07);
   --card-white: #ffffff;
   --border-color: #e2e8f0;
   --transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
   --bounce-transition: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  --devil-bg: linear-gradient(135deg, #000000 0%, #450a0a 100%);
+  --devil-accent: #ef4444;
+  --devil-glow: 0 0 15px rgba(239, 68, 68, 0.5);
 }
 
 [data-color-scheme="dark"] {
@@ -48,8 +51,16 @@
 }
 
 .mode-bad {
+  --bg-color: #000000;
+  --text-primary: #FFFFFF;
+  --text-secondary: #9CA3AF;
   --accent-color: #ef4444;
-  --accent-gradient: linear-gradient(135deg, #ef4444 0%, #000000 100%);
+  --accent-gradient: linear-gradient(135deg, #ef4444 0%, #7f1d1d 100%);
+  --card-bg: rgba(20, 20, 20, 0.8);
+  --glass-border: rgba(239, 68, 68, 0.2);
+  --glass-shadow: 0 0 20px rgba(239, 68, 68, 0.2);
+  background: radial-gradient(circle at center, #450a0a 0%, #000000 100%);
+  color: white;
 }
 
 /* Glassmorphism Utility */

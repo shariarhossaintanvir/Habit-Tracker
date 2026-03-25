@@ -34,6 +34,16 @@ const quotes = [
     { text: "Don't be pushed around by the fears in your mind. Be led by the dreams in your heart.", author: "Roy T. Bennett" }
 ];
 
+const challenges = [
+    "Avoid phone for 6 hours",
+    "No junk food today",
+    "No social media for 4 hours",
+    "Drink 3L of water",
+    "No complaining today",
+    "Walk 10,000 steps",
+    "No caffeine after 2 PM"
+];
+
 // DOM Elements
 const body = document.body;
 const splashScreen = document.getElementById('splashScreen');
@@ -77,6 +87,14 @@ const smartMessage = document.getElementById('smartMessage');
 const darkModeToggle = document.getElementById('darkModeToggle');
 const toast = document.getElementById('toast');
 const toastMessage = document.getElementById('toastMessage');
+const powerLevel = document.getElementById('powerLevel');
+const temptationMeterContainer = document.getElementById('temptationMeterContainer');
+const temptationBar = document.getElementById('temptationBar');
+const controlLevelText = document.getElementById('controlLevelText');
+const temptationStatus = document.getElementById('temptationStatus');
+const dailyChallenge = document.getElementById('dailyChallenge');
+const challengeTitle = document.getElementById('challengeTitle');
+const completeChallengeBtn = document.getElementById('completeChallengeBtn');
 
 let timerInterval;
 let seconds = 0;
@@ -100,6 +118,25 @@ function init() {
     updateDates();
     updateStats();
     updateDailyQuote();
+    updateDailyChallenge();
+}
+
+function updateDailyChallenge() {
+    const today = new Date();
+    const dayOfYear = Math.floor((today - new Date(today.getFullYear(), 0, 0)) / (1000 * 60 * 60 * 24));
+    const challengeIndex = dayOfYear % challenges.length;
+    challengeTitle.textContent = challenges[challengeIndex];
+    
+    const challengeKey = `challenge_${today.toISOString().split('T')[0]}`;
+    if (localStorage.getItem(challengeKey)) {
+        completeChallengeBtn.textContent = "DEFEATED ⚔️";
+        completeChallengeBtn.disabled = true;
+        completeChallengeBtn.style.opacity = '0.5';
+    } else {
+        completeChallengeBtn.textContent = "I DID IT! ⚔️";
+        completeChallengeBtn.disabled = false;
+        completeChallengeBtn.style.opacity = '1';
+    }
 }
 
 function updateDailyQuote() {
@@ -179,6 +216,8 @@ function updateStats() {
         progressText.textContent = '0% Completed';
         streakText.textContent = '0 day streak 🔥';
         smartMessage.textContent = 'Ready to crush your goals? 🚀';
+        temptationMeterContainer.style.display = 'none';
+        dailyChallenge.style.display = 'none';
         return;
     }
 
@@ -188,7 +227,7 @@ function updateStats() {
     progressBar.style.width = `${percentage}%`;
     progressText.textContent = `${percentage}% Completed`;
 
-    // Streak
+    // Streak and Power Level
     let streak = 0;
     let checkDate = new Date();
     while (true) {
@@ -200,7 +239,6 @@ function updateStats() {
             streak++;
             checkDate.setDate(checkDate.getDate() - 1);
         } else {
-            // If it's today and nothing done yet, don't break streak yet, check yesterday
             if (dateStr === new Date().toISOString().split('T')[0]) {
                 checkDate.setDate(checkDate.getDate() - 1);
                 continue;
@@ -209,17 +247,49 @@ function updateStats() {
         }
     }
     streakText.textContent = `${streak} day streak 🔥`;
+    updatePowerLevel(streak);
 
-    // Smart Message
-    if (percentage === 100) {
-        smartMessage.textContent = '🔥 Great job bro! You killed it today!';
-    } else if (percentage >= 50) {
-        smartMessage.textContent = 'Almost there! Keep going! 💪';
-    } else if (percentage > 0) {
-        smartMessage.textContent = 'Good start! Don\'t stop now. ✨';
+    // Mode specific stats
+    if (currentMode === 'bad') {
+        temptationMeterContainer.style.display = 'block';
+        const controlLevel = percentage;
+        temptationBar.style.width = `${controlLevel}%`;
+        controlLevelText.textContent = `${controlLevel}%`;
+        
+        if (controlLevel > 80) {
+            temptationStatus.textContent = 'Temptation: LOW 😤';
+            smartMessage.textContent = "You defeated it 😤🔥";
+        } else if (controlLevel > 40) {
+            temptationStatus.textContent = 'Temptation: MODERATE ⚖️';
+            smartMessage.textContent = "Don't let the demons win! 😈";
+        } else {
+            temptationStatus.textContent = 'Temptation: HIGH 😈';
+            smartMessage.textContent = "It got you this time 😈";
+        }
+        dailyChallenge.style.display = 'flex';
     } else {
-        smartMessage.textContent = 'Try harder tomorrow 😈';
+        temptationMeterContainer.style.display = 'none';
+        dailyChallenge.style.display = 'none';
+        if (percentage === 100) {
+            smartMessage.textContent = '🔥 Great job bro! You killed it today!';
+        } else if (percentage >= 50) {
+            smartMessage.textContent = 'Almost there! Keep going! 💪';
+        } else if (percentage > 0) {
+            smartMessage.textContent = 'Good start! Don\'t stop now. ✨';
+        } else {
+            smartMessage.textContent = 'Ready to crush your goals? 🚀';
+        }
     }
+}
+
+function updatePowerLevel(streak) {
+    let level = "Level 0: Novice";
+    if (streak >= 30) level = "Level 4: Unbreakable 🔥";
+    else if (streak >= 14) level = "Level 3: Iron Will ⚔️";
+    else if (streak >= 7) level = "Level 2: Strong Mind 🧠";
+    else if (streak >= 3) level = "Level 1: Control ✊";
+    
+    powerLevel.textContent = level;
 }
 
 function updateProfileUI() {
@@ -310,6 +380,8 @@ function renderHabits() {
         card.className = `habit-card ${isDone ? 'completed animate-bounce' : ''}`;
         card.dataset.index = index;
         
+        const title = currentMode === 'bad' ? `Enemy: ${habit.name}` : habit.name;
+        
         card.innerHTML = `
             <div class="habit-icon">
                 ${habit.icon.startsWith('data:image') 
@@ -317,7 +389,7 @@ function renderHabits() {
                     : (habit.icon || '📚')}
             </div>
             <div class="habit-content">
-                <div class="habit-title">${habit.name}</div>
+                <div class="habit-title">${title}</div>
                 <div class="habit-subtitle">
                     ${habit.interval === 'specific' ? 'Specific Days' : (habit.interval || 'Daily')} • ${habit.description || 'Habit'}
                 </div>
@@ -407,10 +479,30 @@ function toggleHabit(index) {
     const habit = habits[currentMode][index];
     if (!habit.history) habit.history = {};
     
+    const isNowDone = !habit.history[selectedDate];
+    
     if (habit.history[selectedDate]) {
         delete habit.history[selectedDate];
+        if (currentMode === 'bad') {
+            showToast("It got you this time 😈");
+            const card = document.querySelector(`.habit-card[data-index="${index}"]`);
+            if (card) {
+                card.classList.add('rage-shake');
+                setTimeout(() => card.classList.remove('rage-shake'), 500);
+            }
+        }
     } else {
         habit.history[selectedDate] = true;
+        if (currentMode === 'bad') {
+            showToast("You defeated it 😤🔥");
+            const card = document.querySelector(`.habit-card[data-index="${index}"]`);
+            if (card) {
+                card.classList.add('fire-effect');
+                setTimeout(() => card.classList.remove('fire-effect'), 1000);
+            }
+        } else {
+            showToast("Habit completed! 🌟");
+        }
     }
     
     saveData();
@@ -446,14 +538,23 @@ function setupEventListeners() {
 
     modeToggle.addEventListener('change', () => {
         currentMode = modeToggle.checked ? 'bad' : 'good';
-        body.className = `mode-${currentMode}`;
-        // Smooth transition effect
-        body.style.opacity = '0';
+        
+        // Cinematic transition
+        const overlay = document.createElement('div');
+        overlay.className = 'mode-switch-overlay active';
+        document.body.appendChild(overlay);
+        
+        if (currentMode === 'bad') {
+            document.body.classList.add('rage-shake');
+            setTimeout(() => document.body.classList.remove('rage-shake'), 500);
+        }
+
         setTimeout(() => {
+            body.className = `mode-${currentMode}`;
             renderHabits();
             updateStats();
-            body.style.opacity = '1';
-        }, 200);
+            overlay.remove();
+        }, 300);
     });
 
     darkModeToggle.addEventListener('change', () => {
@@ -556,6 +657,18 @@ function setupEventListeners() {
         }
     });
 
+    completeChallengeBtn.addEventListener('click', () => {
+        const today = new Date().toISOString().split('T')[0];
+        const challengeKey = `challenge_${today}`;
+        localStorage.setItem(challengeKey, 'true');
+        showToast("Challenge Defeated! Power Level Increased! ⚔️");
+        updateDailyChallenge();
+        
+        // Visual feedback
+        document.body.classList.add('fire-effect');
+        setTimeout(() => document.body.classList.remove('fire-effect'), 1000);
+    });
+
     userNameInput.addEventListener('input', (e) => {
         const newName = e.target.value || 'User';
         userNameDisplay.textContent = newName;
@@ -633,6 +746,10 @@ function resetForm() {
 function addHabit() {
     const name = habitInput.value.trim();
     if (!name) return;
+
+    if (currentMode === 'bad') {
+        showToast("This habit is dangerous ⚠️");
+    }
 
     const selectedDays = [];
     if (habitInterval.value === 'specific') {

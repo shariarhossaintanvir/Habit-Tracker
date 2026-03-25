@@ -61,6 +61,16 @@
             <div class="progress-bar-container">
               <div id="progressBar" class="progress-bar"></div>
             </div>
+            <div id="powerLevel" class="power-level-badge">Level 0: Novice</div>
+          </div>
+          <div id="temptationMeterContainer" class="temptation-section" style="display: none;">
+            <div class="temptation-info">
+              <span>Control Level: <span id="controlLevelText">0%</span></span>
+              <span id="temptationStatus">Temptation: HIGH 😈</span>
+            </div>
+            <div class="temptation-bar-container">
+              <div id="temptationBar" class="temptation-bar"></div>
+            </div>
           </div>
           <p id="smartMessage" class="smart-message">Ready to crush your goals? 🚀</p>
         </div>
@@ -76,6 +86,13 @@
       </header>
 
       <main>
+        <div id="dailyChallenge" class="daily-challenge glass" style="display: none;">
+          <div class="challenge-header">
+            <span class="challenge-tag">DAILY CHALLENGE 💣</span>
+            <span id="challengeTitle">Avoid phone for 6 hours</span>
+          </div>
+          <button id="completeChallengeBtn" class="btn-challenge">I DID IT! ⚔️</button>
+        </div>
         <div id="habitList" class="habit-grid">
           <!-- Habits will be injected here as bento cards -->
         </div>
