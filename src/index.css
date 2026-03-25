@@ -59,6 +59,7 @@
   -webkit-backdrop-filter: blur(12px);
   border: 1px solid var(--glass-border);
   box-shadow: var(--glass-shadow);
+  will-change: transform, opacity;
 }
 
 /* Animations */
@@ -154,25 +155,8 @@
   transform-origin: top;
 }
 
-.scrolled .stats-overview {
-  opacity: 0;
-  max-height: 0;
-  margin-top: 0;
-  padding-top: 0;
-  padding-bottom: 0;
-  pointer-events: none;
-  transform: translateY(-5px);
-}
-
-.scrolled #dailyQuote {
-  opacity: 0;
-  max-height: 0;
-  margin-top: 0;
-  padding-top: 0;
-  padding-bottom: 0;
-  border-width: 0;
-  pointer-events: none;
-  transform: translateY(-5px);
+.scrolled .stats-overview, .scrolled #dailyQuote {
+  display: none;
 }
 
 .scrolled .streak-badge {
@@ -234,6 +218,14 @@
   font-weight: 600;
 }
 
+html {
+  scroll-behavior: smooth;
+  height: 100%;
+  overflow-y: auto;
+  overscroll-behavior-y: contain;
+  scroll-padding-bottom: 100px;
+}
+
 * {
   box-sizing: border-box;
   margin: 0;
@@ -245,11 +237,15 @@ body {
   font-family: 'Inter', sans-serif;
   background-color: var(--bg-color);
   color: var(--text-primary);
-  transition: var(--transition);
+  transition: background-color 0.4s ease, color 0.4s ease;
   min-height: 100vh;
   display: flex;
   justify-content: center;
   overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 #app {
@@ -366,11 +362,21 @@ body {
 /* Header */
 header {
   margin-bottom: 24px;
+  padding: 10px 0;
+  background: var(--bg-color);
+}
+
+.header-top, .date-selector {
   position: sticky;
   top: 0;
   z-index: 100;
-  padding: 10px 0;
   background: var(--bg-color);
+  padding: 10px 0;
+}
+
+.date-selector {
+  top: 70px; /* Adjust based on header-top height */
+  margin-top: -10px;
 }
 
 .mode-good header {
@@ -477,7 +483,7 @@ header {
   justify-content: space-between;
   min-height: 160px;
   position: relative;
-  transition: var(--bounce-transition);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
   cursor: pointer;
   background: var(--card-bg);
   backdrop-filter: blur(12px);
@@ -485,10 +491,12 @@ header {
   border: 1px solid var(--glass-border);
   box-shadow: var(--glass-shadow);
   overflow: hidden;
+  will-change: transform;
+  contain: content;
 }
 
 .habit-card:hover {
-  transform: translateY(-5px) scale(1.02);
+  transform: translateY(-5px);
   box-shadow: 0 12px 40px 0 rgba(31, 38, 135, 0.15);
 }
 
@@ -1305,4 +1313,9 @@ input:checked + .slider:before { transform: translateX(20px); }
   height: 100%;
   object-fit: cover;
   border-radius: 12px;
+}
+
+main {
+  margin-top: 32px;
+  contain: layout;
 }
