@@ -285,6 +285,19 @@
       <div id="toast" class="toast">
         <span id="toastMessage"></span>
       </div>
+
+      <!-- Confirmation Modal -->
+      <div id="confirmModal" class="modal">
+        <div class="modal-content confirmation-modal">
+          <div class="confirm-icon">⚠️</div>
+          <h3>Reset All Data?</h3>
+          <p>This will permanently delete all your habits, streaks, and settings. This action cannot be undone.</p>
+          <div class="confirm-actions">
+            <button id="confirmNoBtn" class="btn-secondary">Cancel</button>
+            <button id="confirmYesBtn" class="btn-danger">Reset Everything</button>
+          </div>
+        </div>
+      </div>
     </div>
     <script type="module" src="/src/main.js"></script>
   </body>

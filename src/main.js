@@ -95,6 +95,9 @@ const temptationStatus = document.getElementById('temptationStatus');
 const dailyChallenge = document.getElementById('dailyChallenge');
 const challengeTitle = document.getElementById('challengeTitle');
 const completeChallengeBtn = document.getElementById('completeChallengeBtn');
+const confirmModal = document.getElementById('confirmModal');
+const confirmYesBtn = document.getElementById('confirmYesBtn');
+const confirmNoBtn = document.getElementById('confirmNoBtn');
 
 let timerInterval;
 let seconds = 0;
@@ -651,10 +654,16 @@ function setupEventListeners() {
     });
 
     resetDataBtn.addEventListener('click', () => {
-        if (confirm('Reset all app data? This cannot be undone.')) {
-            localStorage.clear();
-            location.reload();
-        }
+        confirmModal.classList.add('active');
+    });
+
+    confirmNoBtn.addEventListener('click', () => {
+        confirmModal.classList.remove('active');
+    });
+
+    confirmYesBtn.addEventListener('click', () => {
+        localStorage.clear();
+        location.reload();
     });
 
     completeChallengeBtn.addEventListener('click', () => {
