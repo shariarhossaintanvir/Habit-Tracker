@@ -75,6 +75,8 @@ const progressText = document.getElementById('progressText');
 const streakText = document.getElementById('streakText');
 const smartMessage = document.getElementById('smartMessage');
 const darkModeToggle = document.getElementById('darkModeToggle');
+const toast = document.getElementById('toast');
+const toastMessage = document.getElementById('toastMessage');
 
 let timerInterval;
 let seconds = 0;
@@ -121,15 +123,20 @@ function updateDates() {
     dateSelector.innerHTML = '';
     const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
     const today = new Date();
+    const todayStr = today.toISOString().split('T')[0];
     
     for (let i = -2; i < 5; i++) {
         const date = new Date();
         date.setDate(today.getDate() + i);
         const dateStr = date.toISOString().split('T')[0];
         const pill = document.createElement('div');
-        pill.className = `date-pill ${selectedDate === dateStr ? 'active' : ''}`;
+        pill.className = `date-pill ${selectedDate === dateStr ? 'active' : ''} ${dateStr > todayStr ? 'future' : ''}`;
         pill.innerHTML = `<span>${date.getDate()}</span><small>${days[date.getDay()]}</small>`;
         pill.onclick = () => {
+            if (dateStr > todayStr) {
+                showToast("You can't track future habits yet! Stay focused on today. 🚀");
+                return;
+            }
             selectedDate = dateStr;
             document.querySelectorAll('.date-pill').forEach(p => p.classList.remove('active'));
             pill.classList.add('active');
@@ -137,6 +144,14 @@ function updateDates() {
         };
         dateSelector.appendChild(pill);
     }
+}
+
+function showToast(message) {
+    toastMessage.textContent = message;
+    toast.classList.add('show');
+    setTimeout(() => {
+        toast.classList.remove('show');
+    }, 3000);
 }
 
 function applyTheme(theme) {
@@ -561,6 +576,12 @@ function setupEventListeners() {
 
     // Habit List interaction
     habitList.addEventListener('click', (e) => {
+        const todayStr = new Date().toISOString().split('T')[0];
+        if (selectedDate > todayStr) {
+            showToast("You can't complete habits for future dates! 🚀");
+            return;
+        }
+
         const toggleBtn = e.target.closest('[data-action="toggle"]');
         const card = e.target.closest('.habit-card');
         if (!card) return;
@@ -578,6 +599,9 @@ function setupEventListeners() {
 
     // Add a way to delete - let's use double click for now
     habitList.addEventListener('dblclick', (e) => {
+        const todayStr = new Date().toISOString().split('T')[0];
+        if (selectedDate > todayStr) return;
+        
         const card = e.target.closest('.habit-card');
         if (!card) return;
         const index = parseInt(card.dataset.index);
