@@ -1363,6 +1363,143 @@ main {
   transform: translateX(-50%) translateY(0);
 }
 
+/* Type Selector */
+.type-selector {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.type-option {
+  background: var(--card-bg);
+  border: 1px solid var(--glass-border);
+  border-radius: 16px;
+  padding: 12px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.type-option.active {
+  border-color: var(--accent-color);
+  background: rgba(99, 102, 241, 0.1);
+  box-shadow: 0 0 15px rgba(99, 102, 241, 0.2);
+}
+
+.type-icon {
+  font-size: 20px;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--card-white);
+  border-radius: 10px;
+  box-shadow: var(--glass-shadow);
+}
+
+.type-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.type-name {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.type-desc {
+  font-size: 10px;
+  color: var(--text-secondary);
+}
+
+/* Heatmap */
+.heatmap-container {
+  margin-top: 15px;
+  padding-top: 15px;
+  border-top: 1px solid var(--glass-border);
+  width: 100%;
+}
+
+.heatmap-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-secondary);
+}
+
+.heatmap-grid {
+  display: grid;
+  grid-template-columns: repeat(14, 1fr);
+  gap: 4px;
+}
+
+.heatmap-square {
+  aspect-ratio: 1;
+  border-radius: 3px;
+  background: var(--border-color);
+  cursor: pointer;
+  transition: transform 0.2s;
+  position: relative;
+}
+
+.heatmap-square:hover {
+  transform: scale(1.2);
+  z-index: 10;
+}
+
+.heatmap-square.today {
+  border: 2px solid var(--accent-color);
+}
+
+/* Good Habit Levels */
+.level-0 { background: var(--border-color); }
+.level-1 { background: #dcfce7; } /* Light green */
+.level-2 { background: #86efac; } /* Medium green */
+.level-3 { background: #22c55e; } /* Green */
+.level-4 { background: #15803d; } /* Dark green */
+
+/* Bad Habit Levels */
+.mode-bad .level-1 { background: #fee2e2; } /* Light red */
+.mode-bad .level-2 { background: #fca5a5; } /* Medium red */
+.mode-bad .level-3 { background: #ef4444; } /* Red */
+.mode-bad .level-4 { background: #991b1b; } /* Dark red */
+
+.heatmap-tooltip {
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%) translateY(-5px);
+  background: rgba(0, 0, 0, 0.8);
+  color: white;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 10px;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.heatmap-square:hover .heatmap-tooltip {
+  opacity: 1;
+}
+
+.total-time-badge {
+  background: var(--accent-color);
+  color: white;
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-size: 10px;
+}
+
 /* Confirmation Modal */
 .confirmation-modal {
   width: 90%;

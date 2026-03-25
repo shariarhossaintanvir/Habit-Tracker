@@ -9,6 +9,7 @@ let habits = {
     bad: []
 };
 let selectedIcon = '📚';
+let selectedType = 'simple';
 let selectedDate = new Date().toISOString().split('T')[0];
 let currentTheme = localStorage.getItem('dualHabitTheme') || 'default';
 let profileSeed = localStorage.getItem('dualHabitProfileSeed') || 'diana';
@@ -98,10 +99,18 @@ const completeChallengeBtn = document.getElementById('completeChallengeBtn');
 const confirmModal = document.getElementById('confirmModal');
 const confirmYesBtn = document.getElementById('confirmYesBtn');
 const confirmNoBtn = document.getElementById('confirmNoBtn');
+const timeInputModal = document.getElementById('timeInputModal');
+const minutesInput = document.getElementById('minutesInput');
+const saveTimeBtn = document.getElementById('saveTimeBtn');
+const closeTimeModalBtn = document.getElementById('closeTimeModalBtn');
+const timeInputTitle = document.getElementById('timeInputTitle');
+const timeInputDate = document.getElementById('timeInputDate');
+const typeOptions = document.querySelectorAll('.type-option');
 
 let timerInterval;
 let seconds = 0;
 let activeHabitIndex = null;
+let activeDateStr = null;
 
 // Initialize App
 function init() {
@@ -225,7 +234,12 @@ function updateStats() {
     }
 
     // Progress
-    const completedCount = currentHabits.filter(h => h.history[selectedDate]).length;
+    const completedCount = currentHabits.filter(h => {
+        if (h.type === 'special') {
+            return h.logs && h.logs[selectedDate] > 0;
+        }
+        return h.history && h.history[selectedDate];
+    }).length;
     const percentage = Math.round((completedCount / currentHabits.length) * 100);
     progressBar.style.width = `${percentage}%`;
     progressText.textContent = `${percentage}% Completed`;
@@ -236,7 +250,12 @@ function updateStats() {
     while (true) {
         const dateStr = checkDate.toISOString().split('T')[0];
         const dayHabits = habits[currentMode];
-        const doneAny = dayHabits.some(h => h.history[dateStr]);
+        const doneAny = dayHabits.some(h => {
+            if (h.type === 'special') {
+                return h.logs && h.logs[dateStr] > 0;
+            }
+            return h.history && h.history[dateStr];
+        });
         
         if (doneAny) {
             streak++;
@@ -377,15 +396,16 @@ function renderHabits() {
         }
 
         const card = document.createElement('div');
-        const isDone = habit.history && habit.history[selectedDate];
+        const isSpecial = habit.type === 'special';
+        const isDone = isSpecial ? (habit.logs && habit.logs[selectedDate] > 0) : (habit.history && habit.history[selectedDate]);
         const streak = calculateStreak(habit);
         
-        card.className = `habit-card ${isDone ? 'completed animate-bounce' : ''}`;
+        card.className = `habit-card ${isDone ? 'completed animate-bounce' : ''} ${isSpecial ? 'special-habit' : ''}`;
         card.dataset.index = index;
         
         const title = currentMode === 'bad' ? `Enemy: ${habit.name}` : habit.name;
         
-        card.innerHTML = `
+        let cardHTML = `
             <div class="habit-icon">
                 ${habit.icon.startsWith('data:image') 
                     ? `<img src="${habit.icon}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">` 
@@ -405,27 +425,139 @@ function renderHabits() {
                 ` : ''}
                 <div class="streak-badge">🔥 ${streak} day streak</div>
             </div>
-            <button class="status-indicator ${isDone ? 'done' : ''}" data-action="toggle"></button>
         `;
+
+        if (isSpecial) {
+            cardHTML += `<div class="heatmap-container" id="heatmap-${index}"></div>`;
+        } else {
+            cardHTML += `<button class="status-indicator ${isDone ? 'done' : ''}" data-action="toggle"></button>`;
+        }
+
+        card.innerHTML = cardHTML;
         habitList.appendChild(card);
+
+        if (isSpecial) {
+            renderHeatmap(habit, index);
+        }
     });
 }
 
+function renderHeatmap(habit, index) {
+    const container = document.getElementById(`heatmap-${index}`);
+    if (!container) return;
+
+    const today = new Date();
+    const totalTimeThisWeek = calculateWeeklyTime(habit);
+
+    container.innerHTML = `
+        <div class="heatmap-header">
+            <span>Activity Heatmap</span>
+            <span class="total-time-badge">${totalTimeThisWeek}m this week</span>
+        </div>
+        <div class="heatmap-grid"></div>
+    `;
+
+    const grid = container.querySelector('.heatmap-grid');
+    
+    // Render 14 days (2 weeks)
+    for (let i = 13; i >= 0; i--) {
+        const date = new Date();
+        date.setDate(today.getDate() - i);
+        const dateStr = date.toISOString().split('T')[0];
+        const minutes = (habit.logs && habit.logs[dateStr]) || 0;
+        
+        const square = document.createElement('div');
+        square.className = `heatmap-square ${getLevel(minutes)} ${dateStr === selectedDate ? 'today' : ''}`;
+        
+        square.innerHTML = `
+            <div class="heatmap-tooltip">
+                ${date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}: ${minutes}m
+            </div>
+        `;
+
+        square.onclick = (e) => {
+            e.stopPropagation();
+            openTimeInput(index, dateStr);
+        };
+
+        grid.appendChild(square);
+    }
+}
+
+function getLevel(minutes) {
+    if (minutes === 0) return 'level-0';
+    if (minutes < 20) return 'level-1';
+    if (minutes < 45) return 'level-2';
+    if (minutes < 60) return 'level-3';
+    return 'level-4';
+}
+
+function calculateWeeklyTime(habit) {
+    if (!habit.logs) return 0;
+    let total = 0;
+    const today = new Date();
+    for (let i = 0; i < 7; i++) {
+        const date = new Date();
+        date.setDate(today.getDate() - i);
+        const dateStr = date.toISOString().split('T')[0];
+        total += habit.logs[dateStr] || 0;
+    }
+    return total;
+}
+
+function openTimeInput(index, dateStr) {
+    activeHabitIndex = index;
+    activeDateStr = dateStr;
+    const habit = habits[currentMode][index];
+    
+    timeInputTitle.textContent = `Log time for ${habit.name}`;
+    timeInputDate.textContent = new Date(dateStr).toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
+    minutesInput.value = (habit.logs && habit.logs[dateStr]) || '';
+    
+    timeInputModal.classList.add('active');
+    setTimeout(() => minutesInput.focus(), 100);
+}
+
+saveTimeBtn.onclick = () => {
+    const minutes = parseInt(minutesInput.value) || 0;
+    const habit = habits[currentMode][activeHabitIndex];
+    
+    if (!habit.logs) habit.logs = {};
+    habit.logs[activeDateStr] = minutes;
+    
+    saveData();
+    renderHabits();
+    updateStats();
+    timeInputModal.classList.remove('active');
+    showToast(`Logged ${minutes} minutes!`);
+};
+
+closeTimeModalBtn.onclick = () => {
+    timeInputModal.classList.remove('active');
+};
+
 function calculateStreak(habit) {
-    if (!habit.history) return 0;
+    const isSpecial = habit.type === 'special';
+    const history = isSpecial ? habit.logs : habit.history;
+    if (!history) return 0;
+    
     let streak = 0;
     const today = new Date();
     let checkDate = new Date(today);
     
     // If not done today, start checking from yesterday
     const todayStr = today.toISOString().split('T')[0];
-    if (!habit.history[todayStr]) {
+    const isDoneToday = isSpecial ? (history[todayStr] > 0) : history[todayStr];
+    
+    if (!isDoneToday) {
         checkDate.setDate(checkDate.getDate() - 1);
     }
 
     while (true) {
         const dateStr = checkDate.toISOString().split('T')[0];
-        if (habit.history[dateStr]) {
+        const isDoneOnDate = isSpecial ? (history[dateStr] > 0) : history[dateStr];
+        
+        if (isDoneOnDate) {
             streak++;
             checkDate.setDate(checkDate.getDate() - 1);
         } else {
@@ -480,6 +612,12 @@ function stopTimer() {
 // Toggle Habit Completion
 function toggleHabit(index) {
     const habit = habits[currentMode][index];
+    
+    if (habit.type === 'special') {
+        openTimeInput(index, selectedDate);
+        return;
+    }
+
     if (!habit.history) habit.history = {};
     
     const isNowDone = !habit.history[selectedDate];
@@ -588,6 +726,18 @@ function setupEventListeners() {
     fab.addEventListener('click', () => {
         modal.classList.add('active');
         habitInput.focus();
+        // Reset type selection
+        selectedType = 'simple';
+        typeOptions.forEach(opt => opt.classList.toggle('active', opt.dataset.type === 'simple'));
+    });
+
+    // Type selection
+    typeOptions.forEach(option => {
+        option.addEventListener('click', () => {
+            typeOptions.forEach(opt => opt.classList.remove('active'));
+            option.classList.add('active');
+            selectedType = option.dataset.type;
+        });
     });
 
     habitInterval.addEventListener('change', () => {
@@ -748,6 +898,8 @@ function resetForm() {
     dayPickerContainer.style.display = 'none';
     dayBtns.forEach(btn => btn.classList.remove('active'));
     selectedIcon = '📚';
+    selectedType = 'simple';
+    typeOptions.forEach(opt => opt.classList.toggle('active', opt.dataset.type === 'simple'));
     renderIconGrid();
 }
 
@@ -779,7 +931,9 @@ function addHabit() {
         interval: habitInterval.value,
         days: selectedDays,
         icon: selectedIcon,
-        history: {}
+        type: selectedType,
+        history: {},
+        logs: {}
     };
 
     habits[currentMode].push(newHabit);
