@@ -81,18 +81,9 @@ const changePicBtn = document.getElementById('changePicBtn');
 const settingsProfileImg = document.getElementById('settingsProfileImg');
 const mainProfileImg = profilePic.querySelector('img');
 const userNameDisplay = document.getElementById('userName');
-const progressBar = document.getElementById('progressBar');
-const progressText = document.getElementById('progressText');
-const streakText = document.getElementById('streakText');
-const smartMessage = document.getElementById('smartMessage');
 const darkModeToggle = document.getElementById('darkModeToggle');
 const toast = document.getElementById('toast');
 const toastMessage = document.getElementById('toastMessage');
-const powerLevel = document.getElementById('powerLevel');
-const temptationMeterContainer = document.getElementById('temptationMeterContainer');
-const temptationBar = document.getElementById('temptationBar');
-const controlLevelText = document.getElementById('controlLevelText');
-const temptationStatus = document.getElementById('temptationStatus');
 const dailyChallenge = document.getElementById('dailyChallenge');
 const challengeTitle = document.getElementById('challengeTitle');
 const completeChallengeBtn = document.getElementById('completeChallengeBtn');
@@ -224,94 +215,15 @@ function applyColorScheme(scheme) {
 function updateStats() {
     const currentHabits = habits[currentMode];
     if (currentHabits.length === 0) {
-        progressBar.style.width = '0%';
-        progressText.textContent = '0% Completed';
-        streakText.textContent = '0 day streak 🔥';
-        smartMessage.textContent = 'Ready to crush your goals? 🚀';
-        temptationMeterContainer.style.display = 'none';
         dailyChallenge.style.display = 'none';
         return;
     }
 
-    // Progress
-    const completedCount = currentHabits.filter(h => {
-        if (h.type === 'special') {
-            return h.logs && h.logs[selectedDate] > 0;
-        }
-        return h.history && h.history[selectedDate];
-    }).length;
-    const percentage = Math.round((completedCount / currentHabits.length) * 100);
-    progressBar.style.width = `${percentage}%`;
-    progressText.textContent = `${percentage}% Completed`;
-
-    // Streak and Power Level
-    let streak = 0;
-    let checkDate = new Date();
-    while (true) {
-        const dateStr = checkDate.toISOString().split('T')[0];
-        const dayHabits = habits[currentMode];
-        const doneAny = dayHabits.some(h => {
-            if (h.type === 'special') {
-                return h.logs && h.logs[dateStr] > 0;
-            }
-            return h.history && h.history[dateStr];
-        });
-        
-        if (doneAny) {
-            streak++;
-            checkDate.setDate(checkDate.getDate() - 1);
-        } else {
-            if (dateStr === new Date().toISOString().split('T')[0]) {
-                checkDate.setDate(checkDate.getDate() - 1);
-                continue;
-            }
-            break;
-        }
-    }
-    streakText.textContent = `${streak} day streak 🔥`;
-    updatePowerLevel(streak);
-
-    // Mode specific stats
     if (currentMode === 'bad') {
-        temptationMeterContainer.style.display = 'block';
-        const controlLevel = percentage;
-        temptationBar.style.width = `${controlLevel}%`;
-        controlLevelText.textContent = `${controlLevel}%`;
-        
-        if (controlLevel > 80) {
-            temptationStatus.textContent = 'Temptation: LOW 😤';
-            smartMessage.textContent = "You defeated it 😤🔥";
-        } else if (controlLevel > 40) {
-            temptationStatus.textContent = 'Temptation: MODERATE ⚖️';
-            smartMessage.textContent = "Don't let the demons win! 😈";
-        } else {
-            temptationStatus.textContent = 'Temptation: HIGH 😈';
-            smartMessage.textContent = "It got you this time 😈";
-        }
         dailyChallenge.style.display = 'flex';
     } else {
-        temptationMeterContainer.style.display = 'none';
         dailyChallenge.style.display = 'none';
-        if (percentage === 100) {
-            smartMessage.textContent = '🔥 Great job bro! You killed it today!';
-        } else if (percentage >= 50) {
-            smartMessage.textContent = 'Almost there! Keep going! 💪';
-        } else if (percentage > 0) {
-            smartMessage.textContent = 'Good start! Don\'t stop now. ✨';
-        } else {
-            smartMessage.textContent = 'Ready to crush your goals? 🚀';
-        }
     }
-}
-
-function updatePowerLevel(streak) {
-    let level = "Level 0: Novice";
-    if (streak >= 30) level = "Level 4: Unbreakable 🔥";
-    else if (streak >= 14) level = "Level 3: Iron Will ⚔️";
-    else if (streak >= 7) level = "Level 2: Strong Mind 🧠";
-    else if (streak >= 3) level = "Level 1: Control ✊";
-    
-    powerLevel.textContent = level;
 }
 
 function updateProfileUI() {
