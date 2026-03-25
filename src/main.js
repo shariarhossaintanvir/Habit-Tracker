@@ -341,8 +341,6 @@ function renderHabits() {
 
         if (isSpecial) {
             cardHTML += `<div class="heatmap-container" id="heatmap-${index}"></div>`;
-        } else {
-            cardHTML += `<button class="status-indicator ${isDone ? 'done' : ''}" data-action="toggle"></button>`;
         }
 
         card.innerHTML = cardHTML;
@@ -386,11 +384,6 @@ function renderHeatmap(habit, index) {
                 ${date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}: ${minutes}m
             </div>
         `;
-
-        square.onclick = (e) => {
-            e.stopPropagation();
-            openTimeInput(index, dateStr);
-        };
 
         grid.appendChild(square);
     }
@@ -760,36 +753,13 @@ function setupEventListeners() {
 
     // Habit List interaction
     habitList.addEventListener('click', (e) => {
-        const todayStr = new Date().toISOString().split('T')[0];
-        if (selectedDate > todayStr) {
-            showToast("You can't complete habits for future dates! 🚀");
-            return;
-        }
-
-        const toggleBtn = e.target.closest('[data-action="toggle"]');
         const card = e.target.closest('.habit-card');
         if (!card) return;
 
         const index = parseInt(card.dataset.index);
         
-        if (toggleBtn) {
-            e.stopPropagation();
-            toggleHabit(index);
-        } else {
-            // Open detail view on click
-            openDetail(index);
-        }
-    });
-
-    // Add a way to delete - let's use double click for now
-    habitList.addEventListener('dblclick', (e) => {
-        const todayStr = new Date().toISOString().split('T')[0];
-        if (selectedDate > todayStr) return;
-        
-        const card = e.target.closest('.habit-card');
-        if (!card) return;
-        const index = parseInt(card.dataset.index);
-        deleteHabit(index);
+        // Open detail view on click
+        openDetail(index);
     });
 
     // Scroll listener to hide streak and motivation
