@@ -17,24 +17,6 @@ let colorScheme = localStorage.getItem('dualHabitColorScheme') || 'light';
 
 const icons = ['📚', '🏋️', '💻', '💰', '🧘', '🥦', '💧', '🛌', '🧹', '🎨', '🎸', '🚶', '🍎', '🚭', '📵', '🏃', '🏊', '🚴', '🥗', '💊', '🧠', '✍️', '🌱', '🧹', '🚿', '🍵', '📅', '🎯', '🔥', '✨'];
 
-const quotes = [
-    { text: "The only way to do great work is to love what you do.", author: "Steve Jobs" },
-    { text: "Believe you can and you're halfway there.", author: "Theodore Roosevelt" },
-    { text: "It does not matter how slowly you go as long as you do not stop.", author: "Confucius" },
-    { text: "Success is not final, failure is not fatal: it is the courage to continue that counts.", author: "Winston Churchill" },
-    { text: "Your time is limited, don't waste it living someone else's life.", author: "Steve Jobs" },
-    { text: "The best way to predict the future is to invent it.", author: "Alan Kay" },
-    { text: "Don't watch the clock; do what it does. Keep going.", author: "Sam Levenson" },
-    { text: "Everything you've ever wanted is on the other side of fear.", author: "George Addair" },
-    { text: "Hardships often prepare ordinary people for an extraordinary destiny.", author: "C.S. Lewis" },
-    { text: "The only limit to our realization of tomorrow will be our doubts of today.", author: "Franklin D. Roosevelt" },
-    { text: "What you get by achieving your goals is not as important as what you become by achieving your goals.", author: "Zig Ziglar" },
-    { text: "If you can dream it, you can do it.", author: "Walt Disney" },
-    { text: "Action is the foundational key to all success.", author: "Pablo Picasso" },
-    { text: "The future depends on what you do today.", author: "Mahatma Gandhi" },
-    { text: "Don't be pushed around by the fears in your mind. Be led by the dreams in your heart.", author: "Roy T. Bennett" }
-];
-
 const challenges = [
     "Avoid phone for 6 hours",
     "No junk food today",
@@ -120,7 +102,6 @@ function init() {
     setupEventListeners();
     updateDates();
     updateStats();
-    updateDailyQuote();
     updateDailyChallenge();
 }
 
@@ -139,22 +120,6 @@ function updateDailyChallenge() {
         completeChallengeBtn.textContent = "I DID IT! ⚔️";
         completeChallengeBtn.disabled = false;
         completeChallengeBtn.style.opacity = '1';
-    }
-}
-
-function updateDailyQuote() {
-    const today = new Date();
-    // Use day of year to select a quote that changes daily
-    const dayOfYear = Math.floor((today - new Date(today.getFullYear(), 0, 0)) / (1000 * 60 * 60 * 24));
-    const quoteIndex = dayOfYear % quotes.length;
-    const quote = quotes[quoteIndex];
-    
-    const quoteText = document.getElementById('quoteText');
-    const quoteAuthor = document.getElementById('quoteAuthor');
-    
-    if (quoteText && quoteAuthor) {
-        quoteText.textContent = `"${quote.text}"`;
-        quoteAuthor.textContent = `- ${quote.author}`;
     }
 }
 
@@ -342,6 +307,8 @@ function renderHabits() {
         if (isSpecial) {
             cardHTML += `<div class="heatmap-container" id="heatmap-${index}"></div>`;
         }
+        
+        cardHTML += `<button class="delete-habit-btn-small" data-action="delete">×</button>`;
 
         card.innerHTML = cardHTML;
         habitList.appendChild(card);
@@ -753,13 +720,19 @@ function setupEventListeners() {
 
     // Habit List interaction
     habitList.addEventListener('click', (e) => {
+        const deleteBtn = e.target.closest('[data-action="delete"]');
         const card = e.target.closest('.habit-card');
         if (!card) return;
 
         const index = parseInt(card.dataset.index);
         
-        // Open detail view on click
-        openDetail(index);
+        if (deleteBtn) {
+            e.stopPropagation();
+            deleteHabit(index);
+        } else {
+            // Toggle habit on click instead of opening details
+            toggleHabit(index);
+        }
     });
 
     // Scroll listener to hide streak and motivation

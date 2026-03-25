@@ -548,6 +548,43 @@ header {
   line-height: 1.2;
 }
 
+.delete-habit-btn-small {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.05);
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 16px;
+  color: var(--text-secondary);
+  transition: all 0.2s ease;
+  z-index: 10;
+  opacity: 0.3;
+}
+
+.habit-card:hover .delete-habit-btn-small {
+  opacity: 1;
+  background: rgba(0, 0, 0, 0.1);
+}
+
+.delete-habit-btn-small:hover {
+  background: #ff4d4d !important;
+  color: white !important;
+  transform: scale(1.1);
+}
+
+@media (max-width: 768px) {
+  .delete-habit-btn-small {
+    opacity: 0.6;
+  }
+}
+
 .habit-subtitle {
   font-size: 12px;
   font-weight: 600;
