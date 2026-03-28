@@ -300,7 +300,10 @@ function renderHabits() {
                         `).join('')}
                     </div>
                 ` : ''}
-                <div class="streak-badge">🔥 ${streak} day streak</div>
+                <div class="habit-footer">
+                    <div class="streak-badge">🔥 ${streak} day streak</div>
+                    ${isSpecial ? `<div class="time-badge">⏱️ ${habit.logs?.[selectedDate] || 0}m</div>` : ''}
+                </div>
             </div>
         `;
 
@@ -328,8 +331,8 @@ function renderHeatmap(habit, index) {
 
     container.innerHTML = `
         <div class="heatmap-header">
-            <span>Activity Heatmap</span>
-            <span class="total-time-badge">${totalTimeThisWeek}m this week</span>
+            <span>ACTIVITY HEATMAP</span>
+            <span class="total-time-badge">${totalTimeThisWeek}m THIS WEEK</span>
         </div>
         <div class="heatmap-grid"></div>
     `;
