@@ -30,8 +30,16 @@
       <header>
         <div class="header-top">
           <div class="user-info">
-            <p class="greeting-prefix">Good morning,</p>
-            <h1 id="userName">Diana</h1>
+            <div class="user-header-main">
+              <p class="greeting-prefix">Good morning,</p>
+              <h1 id="userName">Diana</h1>
+            </div>
+            <div class="user-level-badge">
+              <span id="userLevel">Lv. 1</span>
+              <div class="xp-bar-container">
+                <div id="xpBar" class="xp-bar" style="width: 30%;"></div>
+              </div>
+            </div>
           </div>
           <div class="header-actions">
             <div class="toggle-container">
@@ -52,6 +60,10 @@
           <div class="date-pill"><span>16</span><small>Sat</small></div>
         </div>
 
+        <div id="quoteSection" class="quote-section glass">
+          <p id="quoteText">"The secret of your future is hidden in your daily routine."</p>
+          <span id="quoteAuthor">— Mike Murdock</span>
+        </div>
       </header>
 
       <main>
@@ -60,7 +72,10 @@
             <span class="challenge-tag">DAILY CHALLENGE 💣</span>
             <span id="challengeTitle">Avoid phone for 6 hours</span>
           </div>
-          <button id="completeChallengeBtn" class="btn-challenge">I DID IT! ⚔️</button>
+          <div class="challenge-actions">
+            <button id="completeChallengeBtn" class="btn-challenge">I DID IT! ⚔️</button>
+            <button id="withdrawChallengeBtn" class="btn-withdraw">WITHDRAW 🏳️</button>
+          </div>
         </div>
         <div id="habitList" class="habit-grid">
           <!-- Habits will be injected here as bento cards -->
@@ -85,10 +100,63 @@
         <button id="fab" class="fab-center" aria-label="Add Habit">
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
         </button>
-        <div class="profile-pic">
+        <div id="profilePic" class="profile-pic">
           <img src="https://picsum.photos/seed/diana/100/100" alt="Profile" referrerPolicy="no-referrer">
         </div>
       </nav>
+
+      <!-- Profile Modal -->
+      <div id="profileModal" class="modal">
+        <div class="modal-content profile-modal-content glass">
+          <div class="modal-header">
+            <h2>Your Profile</h2>
+            <button id="closeProfileBtn" class="close-btn"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
+          </div>
+          <div class="profile-details">
+            <div class="profile-main-info">
+              <div class="profile-avatar-large">
+                <img src="https://picsum.photos/seed/diana/150/150" alt="Profile" referrerPolicy="no-referrer">
+              </div>
+              <h3 id="profileName">Diana</h3>
+              <p id="profileRank" class="profile-rank">Novice Tracker</p>
+            </div>
+            
+            <div class="profile-stats-grid">
+              <div class="p-stat-card">
+                <span id="totalCompletions">0</span>
+                <label>Total Habits Done</label>
+              </div>
+              <div class="p-stat-card">
+                <span id="bestStreak">0</span>
+                <label>Best Streak</label>
+              </div>
+              <div class="p-stat-card">
+                <span id="challengesWon">0</span>
+                <label>Challenges Won</label>
+              </div>
+            </div>
+
+            <div class="achievements-section">
+              <h4>Achievements</h4>
+              <div id="achievementsList" class="achievements-list">
+                <!-- Achievements will be injected here -->
+                <div class="achievement-item locked">
+                  <div class="achievement-icon">🏆</div>
+                  <span>First Habit</span>
+                </div>
+                <div class="achievement-item locked">
+                  <div class="achievement-icon">🔥</div>
+                  <span>7 Day Streak</span>
+                </div>
+                <div class="achievement-item locked">
+                  <div class="achievement-icon">⚔️</div>
+                  <span>Devil Slayer</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
 
       <!-- Habit Detail / Timer View -->
       <div id="detailView" class="detail-view">
@@ -122,6 +190,39 @@
             <div class="tip-item">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"></path></svg>
               <span>Water is important</span>
+            </div>
+          </div>
+
+          <div class="long-term-heatmap-section">
+            <div class="heatmap-header">
+              <span>YEARLY PROGRESS</span>
+              <div class="heatmap-legend">
+                <span>Less</span>
+                <div class="legend-square level-0"></div>
+                <div class="legend-square level-1"></div>
+                <div class="legend-square level-2"></div>
+                <div class="legend-square level-3"></div>
+                <div class="legend-square level-4"></div>
+                <span>More</span>
+              </div>
+            </div>
+            <div class="heatmap-scroll-container">
+              <div id="heatmapMonths" class="heatmap-months"></div>
+              <div id="longTermHeatmap" class="long-term-heatmap"></div>
+            </div>
+            <div id="heatmapAggregates" class="heatmap-aggregates">
+              <div class="aggregate-item">
+                <span class="aggregate-label">THIS WEEK</span>
+                <span id="weeklyAggregate" class="aggregate-value">0</span>
+              </div>
+              <div class="aggregate-item">
+                <span class="aggregate-label">THIS MONTH</span>
+                <span id="monthlyAggregate" class="aggregate-value">0</span>
+              </div>
+              <div class="aggregate-item">
+                <span class="aggregate-label">YEAR TOTAL</span>
+                <span id="yearlyAggregate" class="aggregate-value">0</span>
+              </div>
             </div>
           </div>
 

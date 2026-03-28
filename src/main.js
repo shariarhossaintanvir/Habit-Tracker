@@ -69,6 +69,12 @@ const toastMessage = document.getElementById('toastMessage');
 const dailyChallenge = document.getElementById('dailyChallenge');
 const challengeTitle = document.getElementById('challengeTitle');
 const completeChallengeBtn = document.getElementById('completeChallengeBtn');
+const withdrawChallengeBtn = document.getElementById('withdrawChallengeBtn');
+const longTermHeatmap = document.getElementById('longTermHeatmap');
+const heatmapMonths = document.getElementById('heatmapMonths');
+const weeklyAggregate = document.getElementById('weeklyAggregate');
+const monthlyAggregate = document.getElementById('monthlyAggregate');
+const yearlyAggregate = document.getElementById('yearlyAggregate');
 const confirmModal = document.getElementById('confirmModal');
 const confirmYesBtn = document.getElementById('confirmYesBtn');
 const confirmNoBtn = document.getElementById('confirmNoBtn');
@@ -80,6 +86,33 @@ const timeInputTitle = document.getElementById('timeInputTitle');
 const timeInputDate = document.getElementById('timeInputDate');
 const typeOptions = document.querySelectorAll('.type-option');
 
+// New DOM Elements
+const userLevel = document.getElementById('userLevel');
+const xpBar = document.getElementById('xpBar');
+const quoteText = document.getElementById('quoteText');
+const quoteAuthor = document.getElementById('quoteAuthor');
+const profileModal = document.getElementById('profileModal');
+const closeProfileBtn = document.getElementById('closeProfileBtn');
+const totalCompletions = document.getElementById('totalCompletions');
+const bestStreak = document.getElementById('bestStreak');
+const challengesWon = document.getElementById('challengesWon');
+const profileRank = document.getElementById('profileRank');
+const profileName = document.getElementById('profileName');
+
+const quotes = [
+    { text: "The secret of your future is hidden in your daily routine.", author: "Mike Murdock" },
+    { text: "The secret of getting ahead is getting started.", author: "Mark Twain" },
+    { text: "It does not matter how slowly you go as long as you do not stop.", author: "Confucius" },
+    { text: "Everything you’ve ever wanted is on the other side of fear.", author: "George Addair" },
+    { text: "Success is not final, failure is not fatal: it is the courage to continue that counts.", author: "Winston Churchill" },
+    { text: "Hardships often prepare ordinary people for an extraordinary destiny.", author: "C.S. Lewis" },
+    { text: "Believe you can and you're halfway there.", author: "Theodore Roosevelt" },
+    { text: "Your limitation—it’s only your imagination.", author: "Unknown" },
+    { text: "Push yourself, because no one else is going to do it for you.", author: "Unknown" },
+    { text: "Great things never come from comfort zones.", author: "Unknown" },
+    { text: "Dream it. Wish it. Do it.", author: "Unknown" }
+];
+
 let timerInterval;
 let seconds = 0;
 let activeHabitIndex = null;
@@ -90,6 +123,8 @@ function init() {
     loadData();
     applyTheme(currentTheme);
     applyColorScheme(colorScheme);
+    updateUserLevel();
+    updateQuote();
     
     const savedName = localStorage.getItem('dualHabitUserName') || 'Diana';
     userNameDisplay.textContent = savedName;
@@ -111,15 +146,25 @@ function updateDailyChallenge() {
     const challengeIndex = dayOfYear % challenges.length;
     challengeTitle.textContent = challenges[challengeIndex];
     
-    const challengeKey = `challenge_${today.toISOString().split('T')[0]}`;
+    const todayStr = today.toISOString().split('T')[0];
+    const challengeKey = `challenge_${todayStr}`;
+    const withdrawKey = `withdraw_${todayStr}`;
+    
     if (localStorage.getItem(challengeKey)) {
-        completeChallengeBtn.textContent = "DEFEATED ⚔️";
-        completeChallengeBtn.disabled = true;
-        completeChallengeBtn.style.opacity = '0.5';
+        completeChallengeBtn.textContent = "DEFEATED ⚔️ (RESET?)";
+        completeChallengeBtn.disabled = false;
+        completeChallengeBtn.style.opacity = '0.8';
+        withdrawChallengeBtn.style.display = 'none';
+    } else if (localStorage.getItem(withdrawKey)) {
+        completeChallengeBtn.textContent = "WITHDRAWN 🏳️ (RESET?)";
+        completeChallengeBtn.disabled = false;
+        completeChallengeBtn.style.opacity = '0.8';
+        withdrawChallengeBtn.style.display = 'none';
     } else {
         completeChallengeBtn.textContent = "I DID IT! ⚔️";
         completeChallengeBtn.disabled = false;
         completeChallengeBtn.style.opacity = '1';
+        withdrawChallengeBtn.style.display = 'block';
     }
 }
 
@@ -307,7 +352,9 @@ function renderHabits() {
             </div>
         `;
 
-        if (isSpecial) {
+        const showHeatmap = isSpecial || currentMode === 'good';
+        
+        if (showHeatmap) {
             cardHTML += `<div class="heatmap-container" id="heatmap-${index}"></div>`;
         }
         
@@ -316,7 +363,7 @@ function renderHabits() {
         card.innerHTML = cardHTML;
         habitList.appendChild(card);
 
-        if (isSpecial) {
+        if (showHeatmap) {
             renderHeatmap(habit, index);
         }
     });
@@ -326,13 +373,22 @@ function renderHeatmap(habit, index) {
     const container = document.getElementById(`heatmap-${index}`);
     if (!container) return;
 
+    const isSpecial = habit.type === 'special';
     const today = new Date();
-    const totalTimeThisWeek = calculateWeeklyTime(habit);
+    
+    let statsHTML = '';
+    if (isSpecial) {
+        const totalTimeThisWeek = calculateWeeklyTime(habit);
+        statsHTML = `<span class="total-time-badge">${totalTimeThisWeek}m THIS WEEK</span>`;
+    } else {
+        const completedThisWeek = calculateWeeklyCompletion(habit);
+        statsHTML = `<span class="total-time-badge">${completedThisWeek}/7 DAYS</span>`;
+    }
 
     container.innerHTML = `
         <div class="heatmap-header">
             <span>ACTIVITY HEATMAP</span>
-            <span class="total-time-badge">${totalTimeThisWeek}m THIS WEEK</span>
+            ${statsHTML}
         </div>
         <div class="heatmap-grid"></div>
     `;
@@ -344,19 +400,44 @@ function renderHeatmap(habit, index) {
         const date = new Date();
         date.setDate(today.getDate() - i);
         const dateStr = date.toISOString().split('T')[0];
-        const minutes = (habit.logs && habit.logs[dateStr]) || 0;
+        
+        let level = 'level-0';
+        let tooltipText = '';
+        
+        if (isSpecial) {
+            const minutes = (habit.logs && habit.logs[dateStr]) || 0;
+            level = getLevel(minutes);
+            tooltipText = `${minutes}m`;
+        } else {
+            const done = (habit.history && habit.history[dateStr]);
+            level = done ? 'level-4' : 'level-0';
+            tooltipText = done ? 'Completed' : 'Not completed';
+        }
         
         const square = document.createElement('div');
-        square.className = `heatmap-square ${getLevel(minutes)} ${dateStr === selectedDate ? 'today' : ''}`;
+        square.className = `heatmap-square ${level} ${dateStr === selectedDate ? 'today' : ''}`;
         
         square.innerHTML = `
             <div class="heatmap-tooltip">
-                ${date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}: ${minutes}m
+                ${date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}: ${tooltipText}
             </div>
         `;
 
         grid.appendChild(square);
     }
+}
+
+function calculateWeeklyCompletion(habit) {
+    if (!habit.history) return 0;
+    let total = 0;
+    const today = new Date();
+    for (let i = 0; i < 7; i++) {
+        const date = new Date();
+        date.setDate(today.getDate() - i);
+        const dateStr = date.toISOString().split('T')[0];
+        if (habit.history[dateStr]) total++;
+    }
+    return total;
 }
 
 function getLevel(minutes) {
@@ -466,7 +547,109 @@ function openDetail(index) {
     // Update detail view background color based on mode
     detailView.style.backgroundColor = currentMode === 'good' ? 'var(--card-green)' : 'var(--card-pink)';
     
+    renderLongTermHeatmap(habit);
     startTimer();
+}
+
+function renderLongTermHeatmap(habit) {
+    if (!longTermHeatmap) return;
+    longTermHeatmap.innerHTML = '';
+    if (heatmapMonths) heatmapMonths.innerHTML = '';
+    
+    const today = new Date();
+    const todayStr = today.toISOString().split('T')[0];
+    const isSpecial = habit.type === 'special';
+    
+    const startDate = new Date();
+    startDate.setDate(today.getDate() - 364); // 1 year ago
+    const dayOfWeek = startDate.getDay();
+    startDate.setDate(startDate.getDate() - dayOfWeek);
+
+    const totalDays = 371; // 53 weeks * 7 days
+    
+    let lastMonth = -1;
+    
+    let weeklySum = 0;
+    let monthlySum = 0;
+    let yearlySum = 0;
+
+    const startOfWeek = new Date(today);
+    startOfWeek.setDate(today.getDate() - today.getDay());
+    const startOfWeekStr = startOfWeek.toISOString().split('T')[0];
+
+    const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+    const startOfMonthStr = startOfMonth.toISOString().split('T')[0];
+
+    for (let i = 0; i < totalDays; i++) {
+        const date = new Date(startDate);
+        date.setDate(startDate.getDate() + i);
+        const dateStr = date.toISOString().split('T')[0];
+        
+        // Add month label if it's a new month and it's Sunday (start of column)
+        if (date.getDay() === 0 && date.getMonth() !== lastMonth) {
+            if (heatmapMonths) {
+                const monthSpan = document.createElement('span');
+                monthSpan.textContent = date.toLocaleDateString('en-US', { month: 'short' });
+                // Each column is a week, so the column index is i/7 + 1
+                monthSpan.style.gridColumnStart = Math.floor(i / 7) + 1;
+                heatmapMonths.appendChild(monthSpan);
+            }
+            lastMonth = date.getMonth();
+        }
+        
+        let level = 'level-0';
+        let tooltipText = '';
+        let value = 0;
+        
+        if (isSpecial) {
+            value = (habit.logs && habit.logs[dateStr]) || 0;
+            level = getLevel(value);
+            tooltipText = `${value}m`;
+        } else {
+            const done = (habit.history && habit.history[dateStr]);
+            value = done ? 1 : 0;
+            level = done ? 'level-4' : 'level-0';
+            tooltipText = done ? 'Completed' : 'Not completed';
+        }
+        
+        // Aggregates
+        if (dateStr >= startOfWeekStr && dateStr <= todayStr) {
+            weeklySum += value;
+        }
+        if (dateStr >= startOfMonthStr && dateStr <= todayStr) {
+            monthlySum += value;
+        }
+        if (dateStr <= todayStr) {
+            yearlySum += value;
+        }
+
+        const square = document.createElement('div');
+        square.className = `long-term-square ${level} ${dateStr === todayStr ? 'today' : ''}`;
+        
+        const tooltip = document.createElement('div');
+        tooltip.className = 'heatmap-tooltip';
+        tooltip.textContent = `${date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}: ${tooltipText}`;
+        square.appendChild(tooltip);
+        
+        longTermHeatmap.appendChild(square);
+    }
+
+    // Update aggregate displays
+    if (weeklyAggregate) {
+        weeklyAggregate.textContent = isSpecial ? `${weeklySum}m` : `${weeklySum}d`;
+    }
+    if (monthlyAggregate) {
+        monthlyAggregate.textContent = isSpecial ? `${monthlySum}m` : `${monthlySum}d`;
+    }
+    if (yearlyAggregate) {
+        yearlyAggregate.textContent = isSpecial ? `${yearlySum}m` : `${yearlySum}d`;
+    }
+    
+    // Scroll to the end (today)
+    const scrollContainer = longTermHeatmap.parentElement;
+    if (scrollContainer) {
+        scrollContainer.scrollLeft = scrollContainer.scrollWidth;
+    }
 }
 
 function startTimer() {
@@ -524,6 +707,7 @@ function toggleHabit(index) {
     saveData();
     renderHabits();
     updateStats();
+    updateUserLevel();
 }
 
 // Delete Habit
@@ -686,21 +870,61 @@ function setupEventListeners() {
         confirmModal.classList.remove('active');
     });
 
+    profilePic.addEventListener('click', () => {
+        updateProfileStats();
+        profileModal.classList.add('active');
+    });
+
+    closeProfileBtn.addEventListener('click', () => {
+        profileModal.classList.remove('active');
+    });
+
+    window.addEventListener('click', (e) => {
+        if (e.target === profileModal) {
+            profileModal.classList.remove('active');
+        }
+    });
+
     confirmYesBtn.addEventListener('click', () => {
         localStorage.clear();
         location.reload();
     });
 
     completeChallengeBtn.addEventListener('click', () => {
-        const today = new Date().toISOString().split('T')[0];
-        const challengeKey = `challenge_${today}`;
-        localStorage.setItem(challengeKey, 'true');
+        const todayStr = new Date().toISOString().split('T')[0];
+        const cKey = `challenge_${todayStr}`;
+        const wKey = `withdraw_${todayStr}`;
+
+        if (localStorage.getItem(cKey) || localStorage.getItem(wKey)) {
+            // Reset logic
+            localStorage.removeItem(cKey);
+            localStorage.removeItem(wKey);
+            showToast("Challenge Reset! Try again. ⚔️");
+            updateDailyChallenge();
+            return;
+        }
+
+        localStorage.setItem(cKey, 'true');
+        
+        // Increment challenges won
+        const wonCount = parseInt(localStorage.getItem('challengesWonCount') || '0');
+        localStorage.setItem('challengesWonCount', wonCount + 1);
+        
         showToast("Challenge Defeated! Power Level Increased! ⚔️");
         updateDailyChallenge();
+        updateUserLevel();
         
         // Visual feedback
         document.body.classList.add('fire-effect');
         setTimeout(() => document.body.classList.remove('fire-effect'), 1000);
+    });
+
+    withdrawChallengeBtn.addEventListener('click', () => {
+        const today = new Date().toISOString().split('T')[0];
+        const withdrawKey = `withdraw_${today}`;
+        localStorage.setItem(withdrawKey, 'true');
+        showToast("Challenge Withdrawn. Stay strong next time! 🏳️");
+        updateDailyChallenge();
     });
 
     userNameInput.addEventListener('input', (e) => {
@@ -801,6 +1025,88 @@ function addHabit() {
     
     modal.classList.remove('active');
     resetForm();
+}
+
+function updateUserLevel() {
+    let totalPoints = 0;
+    
+    // Points from good habits
+    habits.good.forEach(habit => {
+        const history = habit.history || {};
+        totalPoints += Object.keys(history).length * 10;
+    });
+    
+    // Points from bad habits (avoiding them)
+    habits.bad.forEach(habit => {
+        const history = habit.history || {};
+        totalPoints += Object.keys(history).length * 15;
+    });
+    
+    // Points from challenges
+    const challengesWonCount = parseInt(localStorage.getItem('challengesWonCount') || '0');
+    totalPoints += challengesWonCount * 50;
+    
+    const level = Math.floor(totalPoints / 100) + 1;
+    const xp = totalPoints % 100;
+    
+    if (userLevel) userLevel.textContent = `Lv. ${level}`;
+    if (xpBar) xpBar.style.width = `${xp}%`;
+    
+    localStorage.setItem('userLevel', level);
+    localStorage.setItem('userXP', xp);
+}
+
+function updateQuote() {
+    if (!quoteText || !quoteAuthor) return;
+    const randomQuote = quotes[Math.floor(Math.random() * quotes.length)];
+    quoteText.textContent = `"${randomQuote.text}"`;
+    quoteAuthor.textContent = `— ${randomQuote.author}`;
+}
+
+function updateProfileStats() {
+    let totalComp = 0;
+    let maxStreak = 0;
+    
+    [...habits.good, ...habits.bad].forEach(habit => {
+        const history = habit.history || {};
+        const dates = Object.keys(history).sort();
+        totalComp += dates.length;
+        
+        // Simple streak calculation
+        let currentStreak = 0;
+        let tempMax = 0;
+        
+        if (dates.length > 0) {
+            tempMax = 1;
+            currentStreak = 1;
+            for (let i = 1; i < dates.length; i++) {
+                const d1 = new Date(dates[i-1]);
+                const d2 = new Date(dates[i]);
+                const diff = (d2 - d1) / (1000 * 60 * 60 * 24);
+                if (diff === 1) {
+                    currentStreak++;
+                } else {
+                    currentStreak = 1;
+                }
+                tempMax = Math.max(tempMax, currentStreak);
+            }
+        }
+        maxStreak = Math.max(maxStreak, tempMax);
+    });
+    
+    if (totalCompletions) totalCompletions.textContent = totalComp;
+    if (bestStreak) bestStreak.textContent = maxStreak;
+    if (challengesWon) challengesWon.textContent = localStorage.getItem('challengesWonCount') || '0';
+    
+    const level = parseInt(localStorage.getItem('userLevel') || '1');
+    if (profileRank) {
+        if (level < 5) profileRank.textContent = 'Novice Tracker';
+        else if (level < 15) profileRank.textContent = 'Habit Warrior';
+        else if (level < 30) profileRank.textContent = 'Elite Master';
+        else profileRank.textContent = 'Legendary Soul';
+    }
+    
+    if (profileName) profileName.textContent = localStorage.getItem('dualHabitUserName') || 'Diana';
 }
 
 // Start the app
