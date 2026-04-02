@@ -109,47 +109,89 @@
       <div id="profileModal" class="modal">
         <div class="modal-content profile-modal-content glass">
           <div class="modal-header">
-            <h2>Your Profile</h2>
-            <button id="closeProfileBtn" class="close-btn"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
+            <div class="header-title-group">
+              <h2>Your Profile</h2>
+              <p class="header-subtitle">Your journey to a better you</p>
+            </div>
+            <div class="header-actions-group">
+              <button id="openSettingsFromProfile" class="settings-btn-icon" title="Settings">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+              </button>
+              <button id="closeProfileBtn" class="close-btn"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
+            </div>
           </div>
+          
           <div class="profile-details">
             <div class="profile-main-info">
-              <div class="profile-avatar-large">
-                <img src="https://picsum.photos/seed/diana/150/150" alt="Profile" referrerPolicy="no-referrer">
+              <div class="profile-avatar-wrapper">
+                <div class="profile-avatar-large">
+                  <img src="https://picsum.photos/seed/diana/150/150" alt="Profile" referrerPolicy="no-referrer">
+                </div>
+                <div class="level-badge-floating">Lv. 1</div>
               </div>
-              <h3 id="profileName">Diana</h3>
-              <p id="profileRank" class="profile-rank">Novice Tracker</p>
+              <div class="profile-name-group">
+                <h3 id="profileName">Diana</h3>
+                <p id="profileRank" class="profile-rank">Novice Tracker</p>
+              </div>
+            </div>
+
+            <div class="profile-level-section">
+              <div class="level-info-row">
+                <span>Level Progress</span>
+                <span id="profileXpText">300 / 1000 XP</span>
+              </div>
+              <div class="profile-xp-container">
+                <div id="profileXpBar" class="profile-xp-bar" style="width: 30%;"></div>
+              </div>
             </div>
             
             <div class="profile-stats-grid">
               <div class="p-stat-card">
-                <span id="totalCompletions">0</span>
-                <label>Total Habits Done</label>
+                <div class="stat-icon">✅</div>
+                <div class="stat-value-group">
+                  <span id="totalCompletions">0</span>
+                  <label>Habits Done</label>
+                </div>
               </div>
               <div class="p-stat-card">
-                <span id="bestStreak">0</span>
-                <label>Best Streak</label>
+                <div class="stat-icon">🔥</div>
+                <div class="stat-value-group">
+                  <span id="bestStreak">0</span>
+                  <label>Best Streak</label>
+                </div>
               </div>
               <div class="p-stat-card">
-                <span id="challengesWon">0</span>
-                <label>Challenges Won</label>
+                <div class="stat-icon">⚔️</div>
+                <div class="stat-value-group">
+                  <span id="challengesWon">0</span>
+                  <label>Challenges Won</label>
+                </div>
               </div>
             </div>
 
             <div class="achievements-section">
-              <h4>Achievements</h4>
+              <div class="section-header">
+                <h4>Achievements</h4>
+                <span class="achievement-count">3 Locked</span>
+              </div>
               <div id="achievementsList" class="achievements-list">
                 <!-- Achievements will be injected here -->
                 <div class="achievement-item locked">
-                  <div class="achievement-icon">🏆</div>
+                  <div class="achievement-icon-wrapper">
+                    <div class="achievement-icon">🏆</div>
+                  </div>
                   <span>First Habit</span>
                 </div>
                 <div class="achievement-item locked">
-                  <div class="achievement-icon">🔥</div>
+                  <div class="achievement-icon-wrapper">
+                    <div class="achievement-icon">🔥</div>
+                  </div>
                   <span>7 Day Streak</span>
                 </div>
                 <div class="achievement-item locked">
-                  <div class="achievement-icon">⚔️</div>
+                  <div class="achievement-icon-wrapper">
+                    <div class="achievement-icon">⚔️</div>
+                  </div>
                   <span>Devil Slayer</span>
                 </div>
               </div>

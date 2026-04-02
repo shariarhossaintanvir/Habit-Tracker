@@ -98,6 +98,11 @@ const bestStreak = document.getElementById('bestStreak');
 const challengesWon = document.getElementById('challengesWon');
 const profileRank = document.getElementById('profileRank');
 const profileName = document.getElementById('profileName');
+const profileXpText = document.getElementById('profileXpText');
+const profileXpBar = document.getElementById('profileXpBar');
+const profileAvatarLarge = document.querySelector('.profile-avatar-large img');
+const levelBadgeFloating = document.querySelector('.level-badge-floating');
+const achievementCount = document.querySelector('.achievement-count');
 
 const quotes = [
     { text: "The secret of your future is hidden in your daily routine.", author: "Mike Murdock" },
@@ -237,9 +242,16 @@ function updateStats() {
 }
 
 function updateProfileUI() {
-    const url = `https://picsum.photos/seed/${profileSeed}/100/100`;
+    const url = `https://picsum.photos/seed/${profileSeed}/150/150`;
     mainProfileImg.src = url;
     settingsProfileImg.src = url;
+    if (profileAvatarLarge) profileAvatarLarge.src = url;
+    
+    const savedName = localStorage.getItem('dualHabitUserName') || 'Diana';
+    if (profileName) profileName.textContent = savedName;
+    
+    updateProfileStats();
+    updateUserLevel();
 }
 
 // Load data from LocalStorage
@@ -849,8 +861,17 @@ function setupEventListeners() {
 
     profilePic.style.cursor = 'pointer';
     profilePic.addEventListener('click', () => {
-        settingsModal.classList.add('active');
+        updateProfileUI();
+        profileModal.classList.add('active');
     });
+
+    const openSettingsFromProfile = document.getElementById('openSettingsFromProfile');
+    if (openSettingsFromProfile) {
+        openSettingsFromProfile.addEventListener('click', () => {
+            profileModal.classList.remove('active');
+            settingsModal.classList.add('active');
+        });
+    }
 
     closeSettingsBtn.addEventListener('click', () => {
         settingsModal.classList.remove('active');
@@ -868,11 +889,6 @@ function setupEventListeners() {
 
     confirmNoBtn.addEventListener('click', () => {
         confirmModal.classList.remove('active');
-    });
-
-    profilePic.addEventListener('click', () => {
-        updateProfileStats();
-        profileModal.classList.add('active');
     });
 
     closeProfileBtn.addEventListener('click', () => {
@@ -1052,6 +1068,20 @@ function updateUserLevel() {
     if (userLevel) userLevel.textContent = `Lv. ${level}`;
     if (xpBar) xpBar.style.width = `${xp}%`;
     
+    // Update profile modal level info
+    if (levelBadgeFloating) levelBadgeFloating.textContent = `Lv. ${level}`;
+    if (profileXpText) profileXpText.textContent = `${xp} / 100 XP`;
+    if (profileXpBar) profileXpBar.style.width = `${xp}%`;
+    
+    // Update Rank based on level
+    const ranks = [
+        "Novice Tracker", "Habit Apprentice", "Routine Builder", 
+        "Consistency Master", "Discipline Legend", "Zen Master",
+        "Habit God", "Unstoppable Force"
+    ];
+    const rankIndex = Math.min(Math.floor((level - 1) / 5), ranks.length - 1);
+    if (profileRank) profileRank.textContent = ranks[rankIndex];
+    
     localStorage.setItem('userLevel', level);
     localStorage.setItem('userXP', xp);
 }
@@ -1069,44 +1099,59 @@ function updateProfileStats() {
     
     [...habits.good, ...habits.bad].forEach(habit => {
         const history = habit.history || {};
-        const dates = Object.keys(history).sort();
-        totalComp += dates.length;
+        const logs = habit.logs || {};
         
-        // Simple streak calculation
-        let currentStreak = 0;
-        let tempMax = 0;
-        
-        if (dates.length > 0) {
-            tempMax = 1;
-            currentStreak = 1;
-            for (let i = 1; i < dates.length; i++) {
-                const d1 = new Date(dates[i-1]);
-                const d2 = new Date(dates[i]);
-                const diff = (d2 - d1) / (1000 * 60 * 60 * 24);
-                if (diff === 1) {
-                    currentStreak++;
-                } else {
-                    currentStreak = 1;
-                }
-                tempMax = Math.max(tempMax, currentStreak);
-            }
+        if (habit.type === 'special') {
+            totalComp += Object.keys(logs).length;
+        } else {
+            totalComp += Object.keys(history).length;
         }
-        maxStreak = Math.max(maxStreak, tempMax);
+        
+        const streak = calculateStreak(habit);
+        if (streak > maxStreak) maxStreak = streak;
     });
+    
+    const challengesWonCount = parseInt(localStorage.getItem('challengesWonCount') || '0');
     
     if (totalCompletions) totalCompletions.textContent = totalComp;
     if (bestStreak) bestStreak.textContent = maxStreak;
-    if (challengesWon) challengesWon.textContent = localStorage.getItem('challengesWonCount') || '0';
+    if (challengesWon) challengesWon.textContent = challengesWonCount;
     
-    const level = parseInt(localStorage.getItem('userLevel') || '1');
-    if (profileRank) {
-        if (level < 5) profileRank.textContent = 'Novice Tracker';
-        else if (level < 15) profileRank.textContent = 'Habit Warrior';
-        else if (level < 30) profileRank.textContent = 'Elite Master';
-        else profileRank.textContent = 'Legendary Soul';
+    // Update achievements
+    updateAchievements(totalComp, maxStreak, challengesWonCount);
+}
+
+function updateAchievements(totalComp, maxStreak, challengesWon) {
+    const achievements = [
+        { id: 'first', icon: '🏆', title: 'First Habit', condition: totalComp >= 1 },
+        { id: 'streak7', icon: '🔥', title: '7 Day Streak', condition: maxStreak >= 7 },
+        { id: 'slayer', icon: '⚔️', title: 'Devil Slayer', condition: challengesWon >= 1 },
+        { id: 'veteran', icon: '🎖️', title: 'Habit Veteran', condition: totalComp >= 50 },
+        { id: 'streak30', icon: '👑', title: '30 Day Streak', condition: maxStreak >= 30 }
+    ];
+    
+    const list = document.getElementById('achievementsList');
+    if (!list) return;
+    
+    list.innerHTML = '';
+    
+    achievements.forEach(ach => {
+        const item = document.createElement('div');
+        item.className = `achievement-item ${ach.condition ? '' : 'locked'}`;
+        
+        item.innerHTML = `
+            <div class="achievement-icon-wrapper">
+                <div class="achievement-icon">${ach.icon}</div>
+            </div>
+            <span>${ach.title}</span>
+        `;
+        list.appendChild(item);
+    });
+    
+    if (achievementCount) {
+        const locked = achievements.filter(a => !a.condition).length;
+        achievementCount.textContent = `${locked} Locked`;
     }
-    
-    if (profileName) profileName.textContent = localStorage.getItem('dualHabitUserName') || 'Diana';
 }
 
 // Start the app
