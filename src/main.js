@@ -91,8 +91,8 @@ const userLevel = document.getElementById('userLevel');
 const xpBar = document.getElementById('xpBar');
 const quoteText = document.getElementById('quoteText');
 const quoteAuthor = document.getElementById('quoteAuthor');
-const profileModal = document.getElementById('profileModal');
-const closeProfileBtn = document.getElementById('closeProfileBtn');
+const profilePage = document.getElementById('profilePage');
+const backFromProfileBtn = document.getElementById('backFromProfileBtn');
 const totalCompletions = document.getElementById('totalCompletions');
 const bestStreak = document.getElementById('bestStreak');
 const challengesWon = document.getElementById('challengesWon');
@@ -358,7 +358,10 @@ function renderHabits() {
                     </div>
                 ` : ''}
                 <div class="habit-footer">
-                    <div class="streak-badge">🔥 ${streak} day streak</div>
+                    <div class="streak-badge ${streak >= 3 ? 'hot-streak' : ''} ${streak >= 7 ? 'mega-streak' : ''}">
+                        <span class="streak-icon">${streak >= 7 ? '⚡' : (streak >= 3 ? '🔥' : '✨')}</span>
+                        <span class="streak-count">${streak} day streak</span>
+                    </div>
                     ${isSpecial ? `<div class="time-badge">⏱️ ${habit.logs?.[selectedDate] || 0}m</div>` : ''}
                 </div>
             </div>
@@ -862,19 +865,33 @@ function setupEventListeners() {
     profilePic.style.cursor = 'pointer';
     profilePic.addEventListener('click', () => {
         updateProfileUI();
-        profileModal.classList.add('active');
+        profilePage.classList.add('active');
+        // Hide main app content to make it feel like a different page
+        app.style.display = 'none';
+        window.scrollTo(0, 0);
     });
 
     const openSettingsFromProfile = document.getElementById('openSettingsFromProfile');
     if (openSettingsFromProfile) {
         openSettingsFromProfile.addEventListener('click', () => {
-            profileModal.classList.remove('active');
+            profilePage.classList.remove('active');
             settingsModal.classList.add('active');
+        });
+    }
+
+    if (backFromProfileBtn) {
+        backFromProfileBtn.addEventListener('click', () => {
+            profilePage.classList.remove('active');
+            app.style.display = 'block';
         });
     }
 
     closeSettingsBtn.addEventListener('click', () => {
         settingsModal.classList.remove('active');
+        // If we came from profile page, keep it hidden, otherwise show app
+        if (!profilePage.classList.contains('active')) {
+            app.style.display = 'block';
+        }
     });
 
     themeOptions.forEach(opt => {
@@ -891,13 +908,12 @@ function setupEventListeners() {
         confirmModal.classList.remove('active');
     });
 
-    closeProfileBtn.addEventListener('click', () => {
-        profileModal.classList.remove('active');
-    });
+    // Removed closeProfileBtn listener as it's replaced by backFromProfileBtn
 
     window.addEventListener('click', (e) => {
-        if (e.target === profileModal) {
-            profileModal.classList.remove('active');
+        if (e.target === profilePage) {
+            profilePage.classList.remove('active');
+            app.style.display = 'block';
         }
     });
 
@@ -946,6 +962,7 @@ function setupEventListeners() {
     userNameInput.addEventListener('input', (e) => {
         const newName = e.target.value || 'User';
         userNameDisplay.textContent = newName;
+        if (profileName) profileName.textContent = newName;
         localStorage.setItem('dualHabitUserName', newName);
     });
 

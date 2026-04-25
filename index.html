@@ -105,348 +105,349 @@
         </div>
       </nav>
 
-      <!-- Profile Modal -->
-      <div id="profileModal" class="modal">
-        <div class="modal-content profile-modal-content glass">
-          <div class="modal-header">
-            <div class="header-title-group">
-              <h2>Your Profile</h2>
-              <p class="header-subtitle">Your journey to a better you</p>
-            </div>
-            <div class="header-actions-group">
-              <button id="openSettingsFromProfile" class="settings-btn-icon" title="Settings">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"></path><circle cx="12" cy="12" r="3"></circle></svg>
-              </button>
-              <button id="closeProfileBtn" class="close-btn"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
-            </div>
+    </div>
+    <!-- Profile Page -->
+    <div id="profilePage" class="page-view">
+      <div class="page-content profile-page-content">
+        <div class="page-header">
+          <button id="backFromProfileBtn" class="back-btn">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+          </button>
+          <div class="header-title-group">
+            <h2>Profile</h2>
+            <p class="header-subtitle">Your journey to a better you</p>
           </div>
-          
-          <div class="profile-details">
-            <div class="profile-main-info">
-              <div class="profile-avatar-wrapper">
-                <div class="profile-avatar-large">
-                  <img src="https://picsum.photos/seed/diana/150/150" alt="Profile" referrerPolicy="no-referrer">
-                </div>
-                <div class="level-badge-floating">Lv. 1</div>
-              </div>
-              <div class="profile-name-group">
-                <h3 id="profileName">Diana</h3>
-                <p id="profileRank" class="profile-rank">Novice Tracker</p>
-              </div>
-            </div>
-
-            <div class="profile-level-section">
-              <div class="level-info-row">
-                <span>Level Progress</span>
-                <span id="profileXpText">300 / 1000 XP</span>
-              </div>
-              <div class="profile-xp-container">
-                <div id="profileXpBar" class="profile-xp-bar" style="width: 30%;"></div>
-              </div>
-            </div>
-            
-            <div class="profile-stats-grid">
-              <div class="p-stat-card">
-                <div class="stat-icon">✅</div>
-                <div class="stat-value-group">
-                  <span id="totalCompletions">0</span>
-                  <label>Habits Done</label>
-                </div>
-              </div>
-              <div class="p-stat-card">
-                <div class="stat-icon">🔥</div>
-                <div class="stat-value-group">
-                  <span id="bestStreak">0</span>
-                  <label>Best Streak</label>
-                </div>
-              </div>
-              <div class="p-stat-card">
-                <div class="stat-icon">⚔️</div>
-                <div class="stat-value-group">
-                  <span id="challengesWon">0</span>
-                  <label>Challenges Won</label>
-                </div>
-              </div>
-            </div>
-
-            <div class="achievements-section">
-              <div class="section-header">
-                <h4>Achievements</h4>
-                <span class="achievement-count">3 Locked</span>
-              </div>
-              <div id="achievementsList" class="achievements-list">
-                <!-- Achievements will be injected here -->
-                <div class="achievement-item locked">
-                  <div class="achievement-icon-wrapper">
-                    <div class="achievement-icon">🏆</div>
-                  </div>
-                  <span>First Habit</span>
-                </div>
-                <div class="achievement-item locked">
-                  <div class="achievement-icon-wrapper">
-                    <div class="achievement-icon">🔥</div>
-                  </div>
-                  <span>7 Day Streak</span>
-                </div>
-                <div class="achievement-item locked">
-                  <div class="achievement-icon-wrapper">
-                    <div class="achievement-icon">⚔️</div>
-                  </div>
-                  <span>Devil Slayer</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Habit Detail / Timer View -->
-      <div id="detailView" class="detail-view">
-        <div class="detail-header">
-          <button id="closeDetailBtn" class="close-btn"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
-          <div id="detailIcon" class="detail-icon-display"></div>
-          <h2 id="detailTitle">Meditation</h2>
+          <button id="openSettingsFromProfile" class="settings-btn-icon" title="Settings">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+          </button>
         </div>
         
-        <div class="detail-content">
-          <div class="detail-character">
-            <div class="orange-ball large">
-              <div class="glasses"></div>
-              <div class="meditate-arms"></div>
+        <div class="profile-details">
+          <div class="profile-main-info">
+            <div class="profile-avatar-wrapper">
+              <div class="profile-avatar-large">
+                <img src="https://picsum.photos/seed/diana/150/150" alt="Profile" referrerPolicy="no-referrer">
+              </div>
+              <div class="level-badge-floating">Lv. 1</div>
+            </div>
+            <div class="profile-name-group">
+              <h3 id="profileName">Diana</h3>
+              <p id="profileRank" class="profile-rank">Novice Tracker</p>
+            </div>
+          </div>
+
+          <div class="profile-level-section">
+            <div class="level-info-row">
+              <span>Level Progress</span>
+              <span id="profileXpText">300 / 1000 XP</span>
+            </div>
+            <div class="profile-xp-container">
+              <div id="profileXpBar" class="profile-xp-bar" style="width: 30%;"></div>
             </div>
           </div>
           
-          <div class="timer-display">
-            <span id="timerText">00 min 00 s</span>
-          </div>
-
-          <div class="tips-list">
-            <div class="tip-item">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18V5l12-2v13"></path><circle cx="6" cy="18" r="3"></circle><circle cx="18" cy="16" r="3"></circle></svg>
-              <span>Calm music can help you</span>
-            </div>
-            <div class="tip-item">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0"></path><path d="M12 12m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0"></path></svg>
-              <span>Mindful breathing helps you relax</span>
-            </div>
-            <div class="tip-item">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"></path></svg>
-              <span>Water is important</span>
-            </div>
-          </div>
-
-          <div class="long-term-heatmap-section">
-            <div class="heatmap-header">
-              <span>YEARLY PROGRESS</span>
-              <div class="heatmap-legend">
-                <span>Less</span>
-                <div class="legend-square level-0"></div>
-                <div class="legend-square level-1"></div>
-                <div class="legend-square level-2"></div>
-                <div class="legend-square level-3"></div>
-                <div class="legend-square level-4"></div>
-                <span>More</span>
+          <div class="profile-stats-grid">
+            <div class="p-stat-card">
+              <div class="stat-icon">✅</div>
+              <div class="stat-value-group">
+                <span id="totalCompletions">0</span>
+                <label>Habits Done</label>
               </div>
             </div>
-            <div class="heatmap-scroll-container">
-              <div id="heatmapMonths" class="heatmap-months"></div>
-              <div id="longTermHeatmap" class="long-term-heatmap"></div>
+            <div class="p-stat-card">
+              <div class="stat-icon">🔥</div>
+              <div class="stat-value-group">
+                <span id="bestStreak">0</span>
+                <label>Best Streak</label>
+              </div>
             </div>
-            <div id="heatmapAggregates" class="heatmap-aggregates">
-              <div class="aggregate-item">
-                <span class="aggregate-label">THIS WEEK</span>
-                <span id="weeklyAggregate" class="aggregate-value">0</span>
-              </div>
-              <div class="aggregate-item">
-                <span class="aggregate-label">THIS MONTH</span>
-                <span id="monthlyAggregate" class="aggregate-value">0</span>
-              </div>
-              <div class="aggregate-item">
-                <span class="aggregate-label">YEAR TOTAL</span>
-                <span id="yearlyAggregate" class="aggregate-value">0</span>
+            <div class="p-stat-card">
+              <div class="stat-icon">⚔️</div>
+              <div class="stat-value-group">
+                <span id="challengesWon">0</span>
+                <label>Challenges Won</label>
               </div>
             </div>
           </div>
 
-          <button id="finishBtn" class="btn-finish">Finish</button>
-          <button id="deleteHabitBtn" class="btn-delete-detail">Delete Habit</button>
-        </div>
-      </div>
-
-      <!-- Settings Modal -->
-      <div id="settingsModal" class="modal">
-        <div class="modal-content full-screen">
-          <div class="modal-header">
-            <button id="closeSettingsBtn" class="close-btn"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
-            <h2>Settings</h2>
-          </div>
-          
-          <div class="form-group">
-            <label>Profile</label>
-            <div class="profile-edit-card">
-              <div class="profile-pic-large" id="profilePicLarge">
-                <img id="settingsProfileImg" src="https://picsum.photos/seed/diana/100/100" alt="Profile" referrerPolicy="no-referrer">
-                <button class="edit-pic-btn" id="changePicBtn">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>
-                </button>
-              </div>
-              <div class="profile-info-edit">
-                <input type="text" id="userNameInput" placeholder="Your Name" value="Diana">
-                <p class="profile-hint">Tap the camera to change your avatar seed</p>
-              </div>
+          <div class="achievements-section">
+            <div class="section-header">
+              <h4>Achievements</h4>
+              <span class="achievement-count">3 Locked</span>
             </div>
-          </div>
-
-          <div class="form-group">
-            <label>App Theme</label>
-            <div class="settings-item-row">
-              <span>Dark Mode</span>
-              <label class="switch">
-                <input type="checkbox" id="darkModeToggle">
-                <span class="slider round"></span>
-              </label>
-            </div>
-            <div class="theme-grid" id="themeGrid">
-              <div class="theme-option active" data-theme="default" style="--theme-color: #5D5FEF;">
-                <div class="theme-preview"></div>
-                <span>Default</span>
-              </div>
-              <div class="theme-option" data-theme="sunset" style="--theme-color: #f97316;">
-                <div class="theme-preview"></div>
-                <span>Sunset</span>
-              </div>
-              <div class="theme-option" data-theme="ocean" style="--theme-color: #0ea5e9;">
-                <div class="theme-preview"></div>
-                <span>Ocean</span>
-              </div>
-              <div class="theme-option" data-theme="forest" style="--theme-color: #16a34a;">
-                <div class="theme-preview"></div>
-                <span>Forest</span>
-              </div>
-              <div class="theme-option" data-theme="lavender" style="--theme-color: #8b5cf6;">
-                <div class="theme-preview"></div>
-                <span>Lavender</span>
-              </div>
-            </div>
-          </div>
-
-          <div class="form-group">
-            <label>Account</label>
-            <div class="settings-item" id="resetDataBtn">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18"></path><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path></svg>
-              <span>Reset All Data</span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Modal -->
-      <div id="modal" class="modal">
-        <div class="modal-content full-screen">
-          <div class="modal-header">
-            <button id="cancelBtn" class="close-btn"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
-            <h2>Let's start a new habit</h2>
-          </div>
-          
-          <div class="form-group">
-            <label>Habit Type</label>
-            <div class="type-selector">
-              <div class="type-option active" data-type="simple">
-                <span class="type-icon">✔</span>
-                <div class="type-info">
-                  <span class="type-name">Simple Habit</span>
-                  <span class="type-desc">Mark as done or avoided</span>
+            <div id="achievementsList" class="achievements-list">
+              <!-- Achievements will be injected here -->
+              <div class="achievement-item locked">
+                <div class="achievement-icon-wrapper">
+                  <div class="achievement-icon">🏆</div>
                 </div>
+                <span>First Habit</span>
               </div>
-              <div class="type-option" data-type="special">
-                <span class="type-icon">📊</span>
-                <div class="type-info">
-                  <span class="type-name">Special Habit</span>
-                  <span class="type-desc">Track time with heatmap</span>
+              <div class="achievement-item locked">
+                <div class="achievement-icon-wrapper">
+                  <div class="achievement-icon">🔥</div>
                 </div>
+                <span>7 Day Streak</span>
+              </div>
+              <div class="achievement-item locked">
+                <div class="achievement-icon-wrapper">
+                  <div class="achievement-icon">⚔️</div>
+                </div>
+                <span>Devil Slayer</span>
               </div>
             </div>
-          </div>
-
-          <div class="form-group">
-            <label>Name</label>
-            <input type="text" id="habitInput" placeholder="Type habit name" autocomplete="off">
-          </div>
-
-          <div class="form-group">
-            <label>Description</label>
-            <textarea id="habitDesc" placeholder="Describe a habit"></textarea>
-          </div>
-
-          <div class="form-group">
-            <label>Intervals</label>
-            <select id="habitInterval">
-              <option value="daily">Every day</option>
-              <option value="weekly">Weekly</option>
-              <option value="monthly">Monthly</option>
-              <option value="specific">Specific Days</option>
-            </select>
-          </div>
-
-          <div class="form-group" id="dayPickerContainer" style="display: none;">
-            <label>Repeat on</label>
-            <div class="day-picker">
-              <div class="day-btn" data-day="0">S</div>
-              <div class="day-btn" data-day="1">M</div>
-              <div class="day-btn" data-day="2">T</div>
-              <div class="day-btn" data-day="3">W</div>
-              <div class="day-btn" data-day="4">T</div>
-              <div class="day-btn" data-day="5">F</div>
-              <div class="day-btn" data-day="6">S</div>
-            </div>
-          </div>
-
-          <div class="form-group">
-            <label>Icon</label>
-            <input type="file" id="customIconInput" accept="image/*" style="display: none;">
-            <div class="icon-grid" id="iconGrid">
-              <!-- Icons will be generated here -->
-            </div>
-          </div>
-
-          <button id="addBtn" class="btn-submit">Add Habit</button>
-        </div>
-      </div>
-
-      <!-- Toast Notification -->
-      <div id="toast" class="toast">
-        <span id="toastMessage"></span>
-      </div>
-
-      <!-- Confirmation Modal -->
-      <div id="confirmModal" class="modal">
-        <div class="modal-content confirmation-modal">
-          <div class="confirm-icon">⚠️</div>
-          <h3>Reset All Data?</h3>
-          <p>This will permanently delete all your habits, streaks, and settings. This action cannot be undone.</p>
-          <div class="confirm-actions">
-            <button id="confirmNoBtn" class="btn-secondary">Cancel</button>
-            <button id="confirmYesBtn" class="btn-danger">Reset Everything</button>
-          </div>
-        </div>
-      </div>
-
-      <!-- Time Input Modal -->
-      <div id="timeInputModal" class="modal">
-        <div class="modal-content confirmation-modal">
-          <div class="confirm-icon">⏱️</div>
-          <h3 id="timeInputTitle">Log Time</h3>
-          <p id="timeInputDate">March 25, 2026</p>
-          <div class="form-group" style="width: 100%;">
-            <input type="number" id="minutesInput" placeholder="Enter minutes" min="0" style="text-align: center; font-size: 24px; padding: 15px;">
-          </div>
-          <div class="confirm-actions">
-            <button id="closeTimeModalBtn" class="btn-secondary">Cancel</button>
-            <button id="saveTimeBtn" class="btn-submit" style="margin-top: 0;">Save Time</button>
           </div>
         </div>
       </div>
     </div>
+
+    <!-- Habit Detail / Timer View -->
+    <div id="detailView" class="detail-view">
+      <div class="detail-header">
+        <button id="closeDetailBtn" class="close-btn"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
+        <div id="detailIcon" class="detail-icon-display"></div>
+        <h2 id="detailTitle">Meditation</h2>
+      </div>
+      
+      <div class="detail-content">
+        <div class="detail-character">
+          <div class="orange-ball large">
+            <div class="glasses"></div>
+            <div class="meditate-arms"></div>
+          </div>
+        </div>
+        
+        <div class="timer-display">
+          <span id="timerText">00 min 00 s</span>
+        </div>
+
+        <div class="tips-list">
+          <div class="tip-item">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18V5l12-2v13"></path><circle cx="6" cy="18" r="3"></circle><circle cx="18" cy="16" r="3"></circle></svg>
+            <span>Calm music can help you</span>
+          </div>
+          <div class="tip-item">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0"></path><path d="M12 12m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0"></path></svg>
+            <span>Mindful breathing helps you relax</span>
+          </div>
+          <div class="tip-item">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"></path></svg>
+            <span>Water is important</span>
+          </div>
+        </div>
+
+        <div class="long-term-heatmap-section">
+          <div class="heatmap-header">
+            <span>YEARLY PROGRESS</span>
+            <div class="heatmap-legend">
+              <span>Less</span>
+              <div class="legend-square level-0"></div>
+              <div class="legend-square level-1"></div>
+              <div class="legend-square level-2"></div>
+              <div class="legend-square level-3"></div>
+              <div class="legend-square level-4"></div>
+              <span>More</span>
+            </div>
+          </div>
+          <div class="heatmap-scroll-container">
+            <div id="heatmapMonths" class="heatmap-months"></div>
+            <div id="longTermHeatmap" class="long-term-heatmap"></div>
+          </div>
+          <div id="heatmapAggregates" class="heatmap-aggregates">
+            <div class="aggregate-item">
+              <span class="aggregate-label">THIS WEEK</span>
+              <span id="weeklyAggregate" class="aggregate-value">0</span>
+            </div>
+            <div class="aggregate-item">
+              <span class="aggregate-label">THIS MONTH</span>
+              <span id="monthlyAggregate" class="aggregate-value">0</span>
+            </div>
+            <div class="aggregate-item">
+              <span class="aggregate-label">YEAR TOTAL</span>
+              <span id="yearlyAggregate" class="aggregate-value">0</span>
+            </div>
+          </div>
+        </div>
+
+        <button id="finishBtn" class="btn-finish">Finish</button>
+        <button id="deleteHabitBtn" class="btn-delete-detail">Delete Habit</button>
+      </div>
+    </div>
+
+    <!-- Settings Modal -->
+    <div id="settingsModal" class="modal">
+      <div class="modal-content full-screen">
+        <div class="modal-header">
+          <button id="closeSettingsBtn" class="close-btn"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
+          <h2>Settings</h2>
+        </div>
+        
+        <div class="form-group">
+          <label>Profile</label>
+          <div class="profile-edit-card">
+            <div class="profile-pic-large" id="profilePicLarge">
+              <img id="settingsProfileImg" src="https://picsum.photos/seed/diana/100/100" alt="Profile" referrerPolicy="no-referrer">
+              <button class="edit-pic-btn" id="changePicBtn">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>
+              </button>
+            </div>
+            <div class="profile-info-edit">
+              <input type="text" id="userNameInput" placeholder="Your Name" value="Diana">
+              <p class="profile-hint">Tap the camera to change your avatar seed</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>App Theme</label>
+          <div class="settings-item-row">
+            <span>Dark Mode</span>
+            <label class="switch">
+              <input type="checkbox" id="darkModeToggle">
+              <span class="slider round"></span>
+            </label>
+          </div>
+          <div class="theme-grid" id="themeGrid">
+            <div class="theme-option active" data-theme="default" style="--theme-color: #5D5FEF;">
+              <div class="theme-preview"></div>
+              <span>Default</span>
+            </div>
+            <div class="theme-option" data-theme="sunset" style="--theme-color: #f97316;">
+              <div class="theme-preview"></div>
+              <span>Sunset</span>
+            </div>
+            <div class="theme-option" data-theme="ocean" style="--theme-color: #0ea5e9;">
+              <div class="theme-preview"></div>
+              <span>Ocean</span>
+            </div>
+            <div class="theme-option" data-theme="forest" style="--theme-color: #16a34a;">
+              <div class="theme-preview"></div>
+              <span>Forest</span>
+            </div>
+            <div class="theme-option" data-theme="lavender" style="--theme-color: #8b5cf6;">
+              <div class="theme-preview"></div>
+              <span>Lavender</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Account</label>
+          <div class="settings-item" id="resetDataBtn">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18"></path><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path></svg>
+            <span>Reset All Data</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal -->
+    <div id="modal" class="modal">
+      <div class="modal-content full-screen">
+        <div class="modal-header">
+          <button id="cancelBtn" class="close-btn"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
+          <h2>Let's start a new habit</h2>
+        </div>
+        
+        <div class="form-group">
+          <label>Habit Type</label>
+          <div class="type-selector">
+            <div class="type-option active" data-type="simple">
+              <span class="type-icon">✔</span>
+              <div class="type-info">
+                <span class="type-name">Simple Habit</span>
+                <span class="type-desc">Mark as done or avoided</span>
+              </div>
+            </div>
+            <div class="type-option" data-type="special">
+              <span class="type-icon">📊</span>
+              <div class="type-info">
+                <span class="type-name">Special Habit</span>
+                <span class="type-desc">Track time with heatmap</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Name</label>
+          <input type="text" id="habitInput" placeholder="Type habit name" autocomplete="off">
+        </div>
+
+        <div class="form-group">
+          <label>Description</label>
+          <textarea id="habitDesc" placeholder="Describe a habit"></textarea>
+        </div>
+
+        <div class="form-group">
+          <label>Intervals</label>
+          <select id="habitInterval">
+            <option value="daily">Every day</option>
+            <option value="weekly">Weekly</option>
+            <option value="monthly">Monthly</option>
+            <option value="specific">Specific Days</option>
+          </select>
+        </div>
+
+        <div class="form-group" id="dayPickerContainer" style="display: none;">
+          <label>Repeat on</label>
+          <div class="day-picker">
+            <div class="day-btn" data-day="0">S</div>
+            <div class="day-btn" data-day="1">M</div>
+            <div class="day-btn" data-day="2">T</div>
+            <div class="day-btn" data-day="3">W</div>
+            <div class="day-btn" data-day="4">T</div>
+            <div class="day-btn" data-day="5">F</div>
+            <div class="day-btn" data-day="6">S</div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Icon</label>
+          <input type="file" id="customIconInput" accept="image/*" style="display: none;">
+          <div class="icon-grid" id="iconGrid">
+            <!-- Icons will be generated here -->
+          </div>
+        </div>
+
+        <button id="addBtn" class="btn-submit">Add Habit</button>
+      </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="toast">
+      <span id="toastMessage"></span>
+    </div>
+
+    <!-- Confirmation Modal -->
+    <div id="confirmModal" class="modal">
+      <div class="modal-content confirmation-modal">
+        <div class="confirm-icon">⚠️</div>
+        <h3>Reset All Data?</h3>
+        <p>This will permanently delete all your habits, streaks, and settings. This action cannot be undone.</p>
+        <div class="confirm-actions">
+          <button id="confirmNoBtn" class="btn-secondary">Cancel</button>
+          <button id="confirmYesBtn" class="btn-danger">Reset Everything</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Time Input Modal -->
+    <div id="timeInputModal" class="modal">
+      <div class="modal-content confirmation-modal">
+        <div class="confirm-icon">⏱️</div>
+        <h3 id="timeInputTitle">Log Time</h3>
+        <p id="timeInputDate">March 25, 2026</p>
+        <div class="form-group" style="width: 100%;">
+          <input type="number" id="minutesInput" placeholder="Enter minutes" min="0" style="text-align: center; font-size: 24px; padding: 15px;">
+        </div>
+        <div class="confirm-actions">
+          <button id="closeTimeModalBtn" class="btn-secondary">Cancel</button>
+          <button id="saveTimeBtn" class="btn-submit" style="margin-top: 0;">Save Time</button>
+        </div>
+      </div>
+    </div>
+
     <script type="module" src="/src/main.js"></script>
   </body>
 </html>
