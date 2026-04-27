@@ -162,38 +162,58 @@
               </div>
             </div>
             <div class="p-stat-card">
-              <div class="stat-icon">⚔️</div>
+              <div class="stat-icon">✨</div>
               <div class="stat-value-group">
-                <span id="challengesWon">0</span>
-                <label>Challenges Won</label>
+                <span id="totalPoints">0</span>
+                <label>Total Points</label>
               </div>
             </div>
           </div>
 
           <div class="achievements-section">
             <div class="section-header">
-              <h4>Achievements</h4>
-              <span class="achievement-count">3 Locked</span>
+              <h4>Long-term Statistics</h4>
             </div>
-            <div id="achievementsList" class="achievements-list">
-              <!-- Achievements will be injected here -->
-              <div class="achievement-item locked">
-                <div class="achievement-icon-wrapper">
-                  <div class="achievement-icon">🏆</div>
+            <div class="profile-stats-grid">
+              <div class="p-stat-card">
+                <div class="stat-icon">🏆</div>
+                <div class="stat-value-group">
+                  <span id="longestOverallStreak">0</span>
+                  <label>Best Streak</label>
                 </div>
-                <span>First Habit</span>
               </div>
-              <div class="achievement-item locked">
-                <div class="achievement-icon-wrapper">
-                  <div class="achievement-icon">🔥</div>
+              <div class="p-stat-card">
+                <div class="stat-icon">📅</div>
+                <div class="stat-value-group">
+                  <span id="yearlyCompletions">0</span>
+                  <label>Done this year</label>
                 </div>
-                <span>7 Day Streak</span>
               </div>
-              <div class="achievement-item locked">
-                <div class="achievement-icon-wrapper">
-                  <div class="achievement-icon">⚔️</div>
+              <div class="p-stat-card">
+                <div class="stat-icon">📈</div>
+                <div class="stat-value-group">
+                  <span id="totalActiveHabits">0</span>
+                  <label>Active Habits</label>
                 </div>
-                <span>Devil Slayer</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="achievements-section">
+            <div class="section-header">
+              <h4>Badges & Achievements</h4>
+              <span class="achievement-count">0 Earned</span>
+            </div>
+            <div id="badgeGallery" class="badge-grid">
+              <!-- Badges will be injected here -->
+              <div class="badge-item locked">
+                <div class="badge-icon-wrap">
+                  <span class="badge-icon">🔒</span>
+                </div>
+                <div class="badge-info">
+                  <span class="badge-name">First Step</span>
+                  <span class="badge-desc">Complete your first habit</span>
+                </div>
               </div>
             </div>
           </div>
@@ -445,6 +465,47 @@
           <button id="closeTimeModalBtn" class="btn-secondary">Cancel</button>
           <button id="saveTimeBtn" class="btn-submit" style="margin-top: 0;">Save Time</button>
         </div>
+      </div>
+    </div>
+
+    <!-- Weekly Summary Modal -->
+    <div id="weeklySummaryModal" class="modal">
+      <div class="modal-content full-screen summary-modal">
+        <div class="modal-header">
+          <button id="closeSummaryBtn" class="close-btn"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
+          <h2>Weekly Summary</h2>
+        </div>
+        
+        <div class="summary-hero">
+          <div class="summary-stars">✨✨✨</div>
+          <h1 id="summaryGreeting">Great work this week!</h1>
+          <p id="summaryDateRange">April 20 - April 26</p>
+        </div>
+
+        <div class="summary-stats-grid">
+          <div class="summary-stat-card">
+            <span class="summary-stat-val" id="weeklyTotalDone">0</span>
+            <span class="summary-stat-label">Tasks Finished</span>
+          </div>
+          <div class="summary-stat-card">
+            <span class="summary-stat-val" id="weeklyTopStreak">0</span>
+            <span class="summary-stat-label">Best Streak</span>
+          </div>
+        </div>
+
+        <div class="summary-section">
+          <h3>Highlights</h3>
+          <div id="weeklyHighlights" class="highlights-list">
+            <!-- Highlights will be injected here -->
+          </div>
+        </div>
+
+        <div class="summary-quote-card">
+          <p id="summaryQuote">"Success is the sum of small efforts, repeated day in and day out."</p>
+          <span id="summaryAuthor">- Robert Collier</span>
+        </div>
+
+        <button id="shareSummaryBtn" class="btn-submit">Share Progress</button>
       </div>
     </div>
 

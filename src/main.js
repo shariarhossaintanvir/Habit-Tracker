@@ -96,6 +96,9 @@ const backFromProfileBtn = document.getElementById('backFromProfileBtn');
 const totalCompletions = document.getElementById('totalCompletions');
 const bestStreak = document.getElementById('bestStreak');
 const challengesWon = document.getElementById('challengesWon');
+const longestOverallStreak = document.getElementById('longestOverallStreak');
+const yearlyCompletions = document.getElementById('yearlyCompletions');
+const totalActiveHabits = document.getElementById('totalActiveHabits');
 const profileRank = document.getElementById('profileRank');
 const profileName = document.getElementById('profileName');
 const profileXpText = document.getElementById('profileXpText');
@@ -103,6 +106,31 @@ const profileXpBar = document.getElementById('profileXpBar');
 const profileAvatarLarge = document.querySelector('.profile-avatar-large img');
 const levelBadgeFloating = document.querySelector('.level-badge-floating');
 const achievementCount = document.querySelector('.achievement-count');
+const badgeGallery = document.getElementById('badgeGallery');
+const totalPoints = document.getElementById('totalPoints');
+
+const BADGES = [
+    { id: 'first_step', name: 'First Step', icon: '👣', desc: 'Completed your first habit', criteria: (stats) => stats.totalCompletions >= 1 },
+    { id: 'consistency_king', name: 'Consistency King', icon: '👑', desc: 'Reached a 7-day streak', criteria: (stats) => stats.maxOverallStreak >= 7 },
+    { id: 'habits_100', name: 'Habit Centurion', icon: '💯', desc: 'Completed 100 habits', criteria: (stats) => stats.totalCompletions >= 100 },
+    { id: 'challenge_warrior', name: 'Challenge Warrior', icon: '🛡️', desc: 'Won 5 daily challenges', criteria: (stats) => stats.challengesWon >= 5 },
+    { id: 'early_bird', name: 'Early Bird', icon: '🌅', desc: 'Completed a habit before 8 AM', criteria: (stats) => stats.earlyBird },
+    { id: 'night_owl', name: 'Night Owl', icon: '🦉', desc: 'Completed a habit after 10 PM', criteria: (stats) => stats.nightOwl },
+    { id: 'habit_master', name: 'Habit Master', icon: '🏅', desc: 'Total XP reached 5000', criteria: (stats) => stats.totalXp >= 5000 },
+    { id: 'devil_slayer', name: 'Devil Slayer', icon: '⚔️', desc: 'Avoided 10 bad habits', criteria: (stats) => stats.badHabitsAvoided >= 10 }
+];
+
+// Weekly Summary Elements
+const weeklySummaryModal = document.getElementById('weeklySummaryModal');
+const closeSummaryBtn = document.getElementById('closeSummaryBtn');
+const summaryGreeting = document.getElementById('summaryGreeting');
+const summaryDateRange = document.getElementById('summaryDateRange');
+const weeklyTotalDone = document.getElementById('weeklyTotalDone');
+const weeklyTopStreak = document.getElementById('weeklyTopStreak');
+const weeklyHighlights = document.getElementById('weeklyHighlights');
+const summaryQuote = document.getElementById('summaryQuote');
+const summaryAuthor = document.getElementById('summaryAuthor');
+const shareSummaryBtn = document.getElementById('shareSummaryBtn');
 
 const quotes = [
     { text: "The secret of your future is hidden in your daily routine.", author: "Mike Murdock" },
@@ -143,6 +171,7 @@ function init() {
     updateDates();
     updateStats();
     updateDailyChallenge();
+    checkBadges();
 }
 
 function updateDailyChallenge() {
@@ -538,6 +567,135 @@ function calculateStreak(habit) {
     return streak;
 }
 
+function calculateLongestStreak(habit) {
+    const isSpecial = habit.type === 'special';
+    const history = isSpecial ? habit.logs : habit.history;
+    if (!history) return 0;
+
+    const dates = Object.keys(history).sort();
+    if (dates.length === 0) return 0;
+
+    let longestStreak = 0;
+    let currentStreak = 0;
+    let lastDate = null;
+
+    dates.forEach(dateStr => {
+        const isDone = isSpecial ? (history[dateStr] > 0) : history[dateStr];
+        if (isDone) {
+            const currentDate = new Date(dateStr);
+            if (lastDate) {
+                const diffTime = Math.abs(currentDate - lastDate);
+                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                
+                if (diffDays === 1) {
+                    currentStreak++;
+                } else {
+                    currentStreak = 1;
+                }
+            } else {
+                currentStreak = 1;
+            }
+            lastDate = currentDate;
+            if (currentStreak > longestStreak) longestStreak = currentStreak;
+        }
+    });
+
+    return longestStreak;
+}
+
+function awardXP(amount) {
+    let currentXp = parseInt(localStorage.getItem('dualHabitXp') || '0');
+    currentXp += amount;
+    localStorage.setItem('dualHabitXp', currentXp);
+    updateUserLevel();
+}
+
+function checkBadges() {
+    let totalComp = 0;
+    let maxOverallStreak = 0;
+    let badHabitsAvoided = 0;
+    
+    [...habits.good, ...habits.bad].forEach(habit => {
+        const history = (habit.type === 'special' ? habit.logs : habit.history) || {};
+        const count = habit.type === 'special' ? Object.keys(history).filter(k => history[k] > 0).length : Object.keys(history).length;
+        totalComp += count;
+        if (habit.mode === 'bad' || (habits.bad.includes(habit))) badHabitsAvoided += count;
+        
+        const longestStreak = calculateLongestStreak(habit);
+        if (longestStreak > maxOverallStreak) maxOverallStreak = longestStreak;
+    });
+
+    const challengesWonCount = parseInt(localStorage.getItem('challengesWonCount') || '0');
+    const totalXp = parseInt(localStorage.getItem('dualHabitXp') || '0');
+    const earlyBird = localStorage.getItem('badge_earlyBird') === 'true';
+    const nightOwl = localStorage.getItem('badge_nightOwl') === 'true';
+
+    const stats = {
+        totalCompletions: totalComp,
+        maxOverallStreak: maxOverallStreak,
+        challengesWon: challengesWonCount,
+        totalXp: totalXp,
+        earlyBird: earlyBird,
+        nightOwl: nightOwl,
+        badHabitsAvoided: badHabitsAvoided
+    };
+
+    const earnedBadges = JSON.parse(localStorage.getItem('earnedBadges') || '[]');
+    let newlyEarned = false;
+
+    BADGES.forEach(badge => {
+        if (!earnedBadges.includes(badge.id) && badge.criteria(stats)) {
+            earnedBadges.push(badge.id);
+            showToast(`Achievement Unlocked: ${badge.name} ${badge.icon}`);
+            awardXP(100);
+            newlyEarned = true;
+        }
+    });
+
+    if (newlyEarned) {
+        localStorage.setItem('earnedBadges', JSON.stringify(earnedBadges));
+    }
+    
+    renderBadgeGallery(earnedBadges);
+}
+
+function renderBadgeGallery(earnedIds) {
+    if (!badgeGallery) return;
+    badgeGallery.innerHTML = '';
+    
+    BADGES.forEach(badge => {
+        const isEarned = earnedIds.includes(badge.id);
+        const el = document.createElement('div');
+        el.className = `badge-item ${isEarned ? 'earned' : 'locked'}`;
+        el.innerHTML = `
+            <div class="badge-icon-wrap">
+                <span class="badge-icon">${badge.icon}</span>
+            </div>
+            <div class="badge-info">
+                <span class="badge-name">${badge.name}</span>
+                <span class="badge-desc">${badge.desc}</span>
+            </div>
+        `;
+        badgeGallery.appendChild(el);
+    });
+}
+function calculateYearlyCompletions(habit) {
+    const isSpecial = habit.type === 'special';
+    const history = (isSpecial ? habit.logs : habit.history) || {};
+    const currentYear = new Date().getFullYear();
+    
+    let count = 0;
+    Object.keys(history).forEach(dateStr => {
+        const date = new Date(dateStr);
+        if (date.getFullYear() === currentYear) {
+            const isDone = isSpecial ? (history[dateStr] > 0) : history[dateStr];
+            if (isDone) count++;
+        }
+    });
+    
+    return count;
+}
+
 // Toggle Mode
 function toggleMode() {
     currentMode = currentMode === 'good' ? 'bad' : 'good';
@@ -695,7 +853,29 @@ function toggleHabit(index) {
     
     const isNowDone = !habit.history[selectedDate];
     
-    if (habit.history[selectedDate]) {
+    if (isNowDone) {
+        habit.history[selectedDate] = true;
+        const now = new Date();
+        const hour = now.getHours();
+        
+        if (currentMode === 'bad') {
+            showToast("You defeated it 😤🔥");
+            const card = document.querySelector(`.habit-card[data-index="${index}"]`);
+            if (card) {
+                card.classList.add('fire-effect');
+                setTimeout(() => card.classList.remove('fire-effect'), 1000);
+            }
+            awardXP(25);
+        } else {
+            showToast("Habit completed! 🌟");
+            awardXP(15);
+        }
+
+        // Track time of completion for badges
+        if (hour < 8) localStorage.setItem('badge_earlyBird', 'true');
+        if (hour >= 22) localStorage.setItem('badge_nightOwl', 'true');
+
+    } else {
         delete habit.history[selectedDate];
         if (currentMode === 'bad') {
             showToast("It got you this time 😈");
@@ -705,24 +885,13 @@ function toggleHabit(index) {
                 setTimeout(() => card.classList.remove('rage-shake'), 500);
             }
         }
-    } else {
-        habit.history[selectedDate] = true;
-        if (currentMode === 'bad') {
-            showToast("You defeated it 😤🔥");
-            const card = document.querySelector(`.habit-card[data-index="${index}"]`);
-            if (card) {
-                card.classList.add('fire-effect');
-                setTimeout(() => card.classList.remove('fire-effect'), 1000);
-            }
-        } else {
-            showToast("Habit completed! 🌟");
-        }
     }
     
     saveData();
     renderHabits();
     updateStats();
     updateUserLevel();
+    checkBadges();
 }
 
 // Delete Habit
@@ -942,9 +1111,11 @@ function setupEventListeners() {
         const wonCount = parseInt(localStorage.getItem('challengesWonCount') || '0');
         localStorage.setItem('challengesWonCount', wonCount + 1);
         
-        showToast("Challenge Defeated! Power Level Increased! ⚔️");
+        showToast("Challenge Defeated! XP Earned! ⚔️🔥");
+        awardXP(50);
         updateDailyChallenge();
         updateUserLevel();
+        checkBadges();
         
         // Visual feedback
         document.body.classList.add('fire-effect');
@@ -1112,7 +1283,10 @@ function updateQuote() {
 
 function updateProfileStats() {
     let totalComp = 0;
-    let maxStreak = 0;
+    let maxCurrentStreak = 0;
+    let maxOverallStreak = 0;
+    let totalYearly = 0;
+    let activeHabitsCount = habits.good.length + habits.bad.length;
     
     [...habits.good, ...habits.bad].forEach(habit => {
         const history = habit.history || {};
@@ -1124,18 +1298,27 @@ function updateProfileStats() {
             totalComp += Object.keys(history).length;
         }
         
-        const streak = calculateStreak(habit);
-        if (streak > maxStreak) maxStreak = streak;
+        const currentStreak = calculateStreak(habit);
+        if (currentStreak > maxCurrentStreak) maxCurrentStreak = currentStreak;
+
+        const longestStreak = calculateLongestStreak(habit);
+        if (longestStreak > maxOverallStreak) maxOverallStreak = longestStreak;
+
+        totalYearly += calculateYearlyCompletions(habit);
     });
     
     const challengesWonCount = parseInt(localStorage.getItem('challengesWonCount') || '0');
     
+    const totalXp = parseInt(localStorage.getItem('dualHabitXp') || '0');
+    if (totalPoints) totalPoints.textContent = totalXp;
     if (totalCompletions) totalCompletions.textContent = totalComp;
-    if (bestStreak) bestStreak.textContent = maxStreak;
-    if (challengesWon) challengesWon.textContent = challengesWonCount;
+    if (bestStreak) bestStreak.textContent = maxCurrentStreak;
+    if (longestOverallStreak) longestOverallStreak.textContent = maxOverallStreak;
+    if (yearlyCompletions) yearlyCompletions.textContent = totalYearly;
+    if (totalActiveHabits) totalActiveHabits.textContent = activeHabitsCount;
     
     // Update achievements
-    updateAchievements(totalComp, maxStreak, challengesWonCount);
+    updateAchievements(totalComp, maxOverallStreak, challengesWonCount);
 }
 
 function updateAchievements(totalComp, maxStreak, challengesWon) {
@@ -1171,5 +1354,126 @@ function updateAchievements(totalComp, maxStreak, challengesWon) {
     }
 }
 
+function showWeeklySummary() {
+    const now = new Date();
+    // Get last Sunday (previous week end)
+    const lastSunday = new Date(now);
+    lastSunday.setDate(now.getDate() - now.getDay());
+    
+    // Get previous Monday (previous week start)
+    const prevMonday = new Date(lastSunday);
+    prevMonday.setDate(lastSunday.getDate() - 6);
+    
+    const formatDate = (date) => date.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+    if (summaryDateRange) summaryDateRange.textContent = `${formatDate(prevMonday)} - ${formatDate(lastSunday)}`;
+    
+    let totalDone = 0;
+    let topStreak = 0;
+    let highlights = [];
+    
+    const allHabits = [...habits.good, ...habits.bad];
+    
+    allHabits.forEach(habit => {
+        const history = (habit.type === 'special' ? habit.logs : habit.history) || {};
+        let habitWeeklyDone = 0;
+        
+        for (let i = 0; i < 7; i++) {
+            const d = new Date(prevMonday);
+            d.setDate(d.getDate() + i);
+            const dateStr = d.toISOString().split('T')[0];
+            
+            if (habit.type === 'special') {
+                if (history[dateStr] > 0) habitWeeklyDone++;
+            } else if (history[dateStr] === true) {
+                habitWeeklyDone++;
+            }
+        }
+        
+        totalDone += habitWeeklyDone;
+        const streak = calculateStreak(habit);
+        if (streak > topStreak) topStreak = streak;
+        
+        if (habitWeeklyDone >= 4) {
+            highlights.push({ icon: habit.icon, text: `Strong week for ${habit.name}` });
+        }
+    });
+
+    if (weeklyTotalDone) weeklyTotalDone.textContent = totalDone;
+    if (weeklyTopStreak) weeklyTopStreak.textContent = topStreak;
+    
+    if (weeklyHighlights) {
+        weeklyHighlights.innerHTML = '';
+        if (highlights.length === 0) {
+            weeklyHighlights.innerHTML = '<div class="highlight-item"><div class="highlight-text">Every small step counts. Ready for a new week?</div></div>';
+        } else {
+            highlights.slice(0, 3).forEach(h => {
+                const el = document.createElement('div');
+                el.className = 'highlight-item';
+                el.innerHTML = `
+                    <div class="highlight-icon">${h.icon}</div>
+                    <div class="highlight-text">${h.text}</div>
+                `;
+                weeklyHighlights.appendChild(el);
+            });
+        }
+    }
+    
+    const summaryQuotes = [
+        { text: "Consistency is what transforms average into excellence.", author: "Unknown" },
+        { text: "Your habits determine your future.", author: "Jack Canfield" },
+        { text: "Don't stop until you're proud.", author: "Unknown" }
+    ];
+    const q = summaryQuotes[Math.floor(Math.random() * summaryQuotes.length)];
+    if (summaryQuote) summaryQuote.textContent = `"${q.text}"`;
+    if (summaryAuthor) summaryAuthor.textContent = `- ${q.author}`;
+    
+    if (weeklySummaryModal) weeklySummaryModal.classList.add('active');
+}
+
+// Event Listeners for Weekly Summary
+if (closeSummaryBtn) {
+    closeSummaryBtn.addEventListener('click', () => {
+        weeklySummaryModal.classList.remove('active');
+    });
+}
+
+if (shareSummaryBtn) {
+    shareSummaryBtn.addEventListener('click', () => {
+        if (typeof showToast === 'function') {
+            showToast("Summary saved to your journey!");
+        }
+    });
+}
+
+// Check for End of Week
+function checkWeeklySummary() {
+    const now = new Date();
+    const day = now.getDay(); 
+    
+    const lastSummarySeen = localStorage.getItem('lastWeeklySummaryWeek');
+    const currentWeekYear = `${new Date().getFullYear()}-${getWeekNumber(now)}`;
+    
+    // Show summary on Sunday or Monday
+    if (day === 0 || day === 1) {
+        if (lastSummarySeen !== currentWeekYear) {
+            showWeeklySummary();
+            localStorage.setItem('lastWeeklySummaryWeek', currentWeekYear);
+        }
+    }
+}
+
+function getWeekNumber(d) {
+    d = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+    d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay() || 7));
+    var yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0 ,1));
+    var weekNo = Math.ceil(( ( (d - yearStart) / 86400000) + 1) / 7);
+    return weekNo;
+}
+
 // Start the app
 init();
+
+// Check summary delayed
+window.addEventListener('load', () => {
+    setTimeout(checkWeeklySummary, 3000);
+});
