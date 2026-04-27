@@ -1500,6 +1500,28 @@ function getWeekNumber(d) {
 // Start the app
 init();
 
+// Service Worker Registration
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js')
+            .then(reg => console.log('Service Worker registered'))
+            .catch(err => console.log('Service Worker registration failed', err));
+    });
+}
+
+// Connection check
+window.addEventListener('online', () => {
+    if (typeof showToast === 'function') {
+        showToast("You're back online! Data synced. 🌐");
+    }
+});
+
+window.addEventListener('offline', () => {
+    if (typeof showToast === 'function') {
+        showToast("Working offline. Progress will be saved. 📶");
+    }
+});
+
 // Check summary delayed
 window.addEventListener('load', () => {
     setTimeout(checkWeeklySummary, 3000);
