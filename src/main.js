@@ -966,8 +966,12 @@ function setupEventListeners() {
         }
     });
 
+    habitInput.addEventListener('input', saveDraft);
+    habitDesc.addEventListener('input', saveDraft);
+
     fab.addEventListener('click', () => {
         modal.classList.add('active');
+        loadDraft();
         habitInput.focus();
         // Reset type selection
         selectedType = 'simple';
@@ -1000,6 +1004,7 @@ function setupEventListeners() {
     const emptyAddBtn = document.getElementById('emptyAddBtn');
     emptyAddBtn.addEventListener('click', () => {
         modal.classList.add('active');
+        loadDraft();
         habitInput.focus();
     });
 
@@ -1179,6 +1184,7 @@ function setupEventListeners() {
 function resetForm() {
     habitInput.value = '';
     habitDesc.value = '';
+    clearDraft();
     habitInterval.selectedIndex = 0;
     habitInterval.value = 'daily';
     dayPickerContainer.style.display = 'none';
@@ -1187,6 +1193,27 @@ function resetForm() {
     selectedType = 'simple';
     typeOptions.forEach(opt => opt.classList.toggle('active', opt.dataset.type === 'simple'));
     renderIconGrid();
+}
+
+function saveDraft() {
+    const draft = {
+        name: habitInput.value,
+        description: habitDesc.value
+    };
+    localStorage.setItem('dualHabitDraft', JSON.stringify(draft));
+}
+
+function loadDraft() {
+    const savedDraft = localStorage.getItem('dualHabitDraft');
+    if (savedDraft) {
+        const draft = JSON.parse(savedDraft);
+        habitInput.value = draft.name || '';
+        habitDesc.value = draft.description || '';
+    }
+}
+
+function clearDraft() {
+    localStorage.removeItem('dualHabitDraft');
 }
 
 // Add Habit
